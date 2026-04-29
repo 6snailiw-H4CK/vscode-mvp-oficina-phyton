@@ -5,7 +5,7 @@ import {
 } from './api.module.js';
 import { formatarMoeda, mostrarAlerta, filtrarOSFinalizadasNoDia, calcularFaturamentoMes } from './utils.js';
 
-const API_HEALTH_URL = '/health';
+const API_HEALTH_URL = new URL('/health', window.location.href).href;
 
 function obterInicioDoMes() {
     const hoje = new Date();
@@ -66,6 +66,6 @@ export async function carregarDashboard() {
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
         statusCard.innerHTML = '<span class="badge bg-danger">✗ Falha ao carregar</span>';
-        mostrarAlerta('Não foi possível carregar os dados do dashboard. Verifique a conexão com o servidor.', 'danger');
+        mostrarAlerta(`Não foi possível carregar os dados do dashboard. Verifique a conexão com o servidor. (${error.message})`, 'danger');
     }
 }
