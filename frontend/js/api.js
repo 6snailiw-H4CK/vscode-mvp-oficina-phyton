@@ -2,7 +2,6 @@
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 
-// Função para fazer chamadas à API
 async function apiCall(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
     const defaultOptions = {
@@ -45,12 +44,12 @@ async function apiCall(endpoint, options = {}) {
 }
 
 // GET
-async function apiGet(endpoint) {
+function apiGet(endpoint) {
     return apiCall(endpoint, { method: 'GET' });
 }
 
 // POST
-async function apiPost(endpoint, data) {
+function apiPost(endpoint, data) {
     return apiCall(endpoint, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -58,7 +57,7 @@ async function apiPost(endpoint, data) {
 }
 
 // PUT
-async function apiPut(endpoint, data) {
+function apiPut(endpoint, data) {
     return apiCall(endpoint, {
         method: 'PUT',
         body: JSON.stringify(data),
@@ -66,7 +65,7 @@ async function apiPut(endpoint, data) {
 }
 
 // DELETE
-async function apiDelete(endpoint) {
+function apiDelete(endpoint) {
     return apiCall(endpoint, { method: 'DELETE' });
 }
 
@@ -148,7 +147,7 @@ function getMovimentacoesProduto(produtoId) {
     return apiGet(`/estoque/movimentacoes/${produtoId}`);
 }
 
-function getRelatarioEstoque() {
+function getRelatorioEstoque() {
     return apiGet('/estoque/relatorio/resumo');
 }
 
@@ -208,7 +207,6 @@ function mostrarAlerta(mensagem, tipo = 'info') {
         </div>
     `;
     
-    // Adicionar ao início do container principal
     const mainContent = document.querySelector('main');
     if (mainContent) {
         mainContent.insertAdjacentHTML('afterbegin', alertHTML);
@@ -235,3 +233,40 @@ function carregarDadosTabela(endpoint, tabelaId, colunas) {
             mostrarAlerta('Erro ao carregar dados: ' + erro.message, 'danger');
         });
 }
+
+// Expor funções no escopo global para compatibilidade com o frontend atual
+window.apiGet = apiGet;
+window.apiPost = apiPost;
+window.apiPut = apiPut;
+window.apiDelete = apiDelete;
+window.getClientes = getClientes;
+window.getCliente = getCliente;
+window.createCliente = createCliente;
+window.updateCliente = updateCliente;
+window.deleteCliente = deleteCliente;
+window.getFornecedores = getFornecedores;
+window.getFornecedor = getFornecedor;
+window.createFornecedor = createFornecedor;
+window.updateFornecedor = updateFornecedor;
+window.deleteFornecedor = deleteFornecedor;
+window.getProdutos = getProdutos;
+window.getProduto = getProduto;
+window.createProduto = createProduto;
+window.updateProduto = updateProduto;
+window.deleteProduto = deleteProduto;
+window.getProdutosEstoqueBaixo = getProdutosEstoqueBaixo;
+window.movimentarEstoque = movimentarEstoque;
+window.getMovimentacoesProduto = getMovimentacoesProduto;
+window.getRelatorioEstoque = getRelatorioEstoque;
+window.getOrdensServico = getOrdensServico;
+window.getOrdemServico = getOrdemServico;
+window.createOrdemServico = createOrdemServico;
+window.updateOrdemServico = updateOrdemServico;
+window.deleteOrdemServico = deleteOrdemServico;
+window.adicionarItemOS = adicionarItemOS;
+window.listarItensOS = listarItensOS;
+window.formatarData = formatarData;
+window.formatarDataHora = formatarDataHora;
+window.formatarMoeda = formatarMoeda;
+window.mostrarAlerta = mostrarAlerta;
+window.carregarDadosTabela = carregarDadosTabela;
