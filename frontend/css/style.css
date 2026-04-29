@@ -1,0 +1,191 @@
+/* Estilos Personalizados */
+
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+}
+
+.card.border-left-primary {
+    border-left: 4px solid var(--primary-color);
+}
+
+.card.border-left-success {
+    border-left: 4px solid var(--success-color);
+}
+
+.card.border-left-warning {
+    border-left: 4px solid var(--warning-color);
+}
+
+.card.border-left-danger {
+    border-left: 4px solid var(--danger-color);
+}
+
+.card.border-left-info {
+    border-left: 4px solid var(--info-color);
+}
+
+/* Tables */
+.table {
+    background-color: white;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.3rem;
+    font-weight: 500;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Badges */
+.badge {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: 0.3rem;
+    border: 1px solid #dee2e6;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Containers */
+main {
+    min-height: calc(100vh - 56px - 72px);
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: 0.3rem;
+}
+
+/* Modal */
+.modal-content {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Tabelas responsivas */
+@media (max-width: 576px) {
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Spinner Loading */
+.spinner {
+    display: inline-block;
+}
+
+/* Placeholder colors */
+.placeholder-wave .placeholder {
+    animation: placeholder-wave 2s linear infinite;
+}
+
+@keyframes placeholder-wave {
+    100% {
+        mask-position: -200% 0;
+    }
+}
+
+/* Status badges */
+.badge-aberta {
+    background-color: #0d6efd;
+}
+
+.badge-em-andamento {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-fechada {
+    background-color: #198754;
+}
+
+.badge-cancelada {
+    background-color: #dc3545;
+}
+
+/* Sticky actions */
+.sticky-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    box-shadow: 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

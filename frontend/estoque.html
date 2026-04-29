@@ -1,0 +1,480 @@
+<!-- Página de Estoque -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque - Sistema Simples</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><i class="bi bi-boxes"></i> Sistema Simples</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html"><i class="bi bi-people"></i> Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="fornecedores.html"><i class="bi bi-shop"></i> Fornecedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="produtos.html"><i class="bi bi-box"></i> Produtos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="estoque.html"><i class="bi bi-graph-up"></i> Estoque</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ordens-servico.html"><i class="bi bi-tools"></i> Ordens de Serviço</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-6"><i class="bi bi-graph-up"></i> Estoque</h1>
+                <p class="text-muted">Movimentação, relatório e gestão de produtos em estoque</p>
+            </div>
+        </div>
+
+        <!-- Cards de Resumo -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-primary shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Total de Produtos</h6>
+                        <h2 id="total-produtos">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-danger shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Estoque Baixo</h6>
+                        <h2 id="estoque-baixo">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-success shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Valor Total</h6>
+                        <h2 id="valor-total">R$ 0,00</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-warning shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Última Atualização</h6>
+                        <p class="mb-0 text-small" id="ultima-atualizacao">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Abas de funcionalidades -->
+        <ul class="nav nav-tabs mb-4" id="estoqueTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="movimentacao-tab" data-bs-toggle="tab" data-bs-target="#movimentacao" type="button">
+                    <i class="bi bi-arrow-left-right"></i> Movimentação
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="produtos-tab" data-bs-toggle="tab" data-bs-target="#produtos" type="button">
+                    <i class="bi bi-box"></i> Produtos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button">
+                    <i class="bi bi-clock-history"></i> Histórico
+                </button>
+            </li>
+        </ul>
+
+        <!-- Conteúdo das Abas -->
+        <div class="tab-content" id="estoqueTabContent">
+            <!-- Aba Movimentação -->
+            <div class="tab-pane fade show active" id="movimentacao" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Registrar Movimentação</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="formMovimentacao">
+                                    <div class="mb-3">
+                                        <label for="produto_id" class="form-label">Produto *</label>
+                                        <select class="form-select" id="produto_id" required>
+                                            <option value="">Selecione um produto...</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="tipo_movimento" class="form-label">Tipo de Movimentação *</label>
+                                        <div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="tipo" id="entrada" value="ENTRADA" checked>
+                                                <label class="form-check-label" for="entrada">
+                                                    <span class="badge bg-success">Entrada</span>
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="tipo" id="saida" value="SAIDA">
+                                                <label class="form-check-label" for="saida">
+                                                    <span class="badge bg-danger">Saída</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="quantidade" class="form-label">Quantidade *</label>
+                                        <input type="number" class="form-control" id="quantidade" min="1" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="motivo" class="form-label">Motivo</label>
+                                        <select class="form-select" id="motivo">
+                                            <option value="">Selecione...</option>
+                                            <option value="COMPRA">Compra</option>
+                                            <option value="DEVOLUCAO">Devolução</option>
+                                            <option value="TRANSFERENCIA">Transferência</option>
+                                            <option value="INVENTARIO">Inventário</option>
+                                            <option value="DANO">Dano</option>
+                                            <option value="USO">Uso</option>
+                                            <option value="OUTRO">Outro</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="observacao" class="form-label">Observação</label>
+                                        <textarea class="form-control" id="observacao" rows="3" placeholder="Detalhes adicionais..."></textarea>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary w-100" id="btnRegistrarMovimento">
+                                        <i class="bi bi-check-circle"></i> Registrar Movimentação
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Informações do Produto</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="infoSemSelecao" class="text-muted text-center py-4">
+                                    Selecione um produto para ver detalhes
+                                </div>
+                                <div id="infoComSelecao" style="display: none;">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Produto:</dt>
+                                        <dd class="col-sm-8" id="info-nome">-</dd>
+                                        <dt class="col-sm-4">SKU:</dt>
+                                        <dd class="col-sm-8" id="info-sku">-</dd>
+                                        <dt class="col-sm-4">Quantidade Atual:</dt>
+                                        <dd class="col-sm-8"><strong id="info-quantidade">-</strong></dd>
+                                        <dt class="col-sm-4">Quantidade Mínima:</dt>
+                                        <dd class="col-sm-8" id="info-minima">-</dd>
+                                        <dt class="col-sm-4">Status:</dt>
+                                        <dd class="col-sm-8" id="info-status">-</dd>
+                                        <dt class="col-sm-4">Preço Custo:</dt>
+                                        <dd class="col-sm-8" id="info-preco-custo">-</dd>
+                                        <dt class="col-sm-4">Preço Venda:</dt>
+                                        <dd class="col-sm-8" id="info-preco-venda">-</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Produtos -->
+            <div class="tab-pane fade" id="produtos" role="tabpanel">
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Produtos em Estoque</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="carregarProdutosEstoque()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Quantidade</th>
+                                    <th>Mínimo</th>
+                                    <th>Status</th>
+                                    <th>Valor Estoque</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaProdutosEstoque">
+                                <tr><td colspan="7" class="text-center text-muted">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Histórico -->
+            <div class="tab-pane fade" id="historico" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="produtoFiltroHistorico" class="form-label">Filtrar por Produto</label>
+                        <select class="form-select" id="produtoFiltroHistorico" onchange="carregarHistorico()">
+                            <option value="">Todos os produtos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Histórico de Movimentações</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="carregarHistorico()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Produto</th>
+                                    <th>Tipo</th>
+                                    <th>Quantidade</th>
+                                    <th>Motivo</th>
+                                    <th>Observação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaHistorico">
+                                <tr><td colspan="6" class="text-center text-muted">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-light text-center py-4 mt-5 border-top">
+        <p class="text-muted mb-0">Sistema Simples v1.0.0 © 2026</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let produtosMap = {};
+        let produtosParaMovimento = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarRelatorio();
+            carregarProdutosParaMovimento();
+            carregarProdutosEstoque();
+            carregarHistorico();
+
+            document.getElementById('btnRegistrarMovimento').addEventListener('click', registrarMovimento);
+            document.getElementById('produto_id').addEventListener('change', atualizarInfoProduto);
+        });
+
+        async function carregarRelatorio() {
+            try {
+                const relatorio = await apiGet('/estoque/relatorio/resumo');
+                document.getElementById('total-produtos').textContent = relatorio.total_produtos;
+                document.getElementById('estoque-baixo').textContent = relatorio.produtos_com_estoque_baixo;
+                document.getElementById('valor-total').textContent = formatarMoeda(relatorio.valor_total_estoque);
+                document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');
+            } catch (error) {
+                console.error('Erro ao carregar relatório:', error);
+            }
+        }
+
+        async function carregarProdutosParaMovimento() {
+            try {
+                const produtos = await apiGet('/produtos?limit=1000');
+                const select = document.getElementById('produto_id');
+                select.innerHTML = '<option value="">Selecione um produto...</option>';
+                produtosParaMovimento = {};
+
+                produtos.forEach(p => {
+                    produtosParaMovimento[p.id] = p;
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    option.textContent = `${p.nome} (SKU: ${p.sku || 'N/A'})`;
+                    select.appendChild(option);
+                });
+
+                carregarProdutosParaFiltro();
+            } catch (error) {
+                mostrarAlerta('Erro ao carregar produtos: ' + error.message, 'danger');
+            }
+        }
+
+        function carregarProdutosParaFiltro() {
+            const select = document.getElementById('produtoFiltroHistorico');
+            select.innerHTML = '<option value="">Todos os produtos</option>';
+
+            Object.values(produtosParaMovimento).forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.nome;
+                select.appendChild(option);
+            });
+        }
+
+        async function carregarProdutosEstoque() {
+            try {
+                const produtos = await apiGet('/produtos?limit=1000');
+                const tabela = document.getElementById('tabelaProdutosEstoque');
+
+                if (produtos.length === 0) {
+                    tabela.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Nenhum produto cadastrado</td></tr>';
+                    return;
+                }
+
+                tabela.innerHTML = produtos.map(p => {
+                    const statusBadge = p.quantidade_atual <= p.quantidade_minima ?
+                        '<span class="badge bg-danger">Baixo</span>' :
+                        '<span class="badge bg-success">OK</span>';
+                    
+                    const valorEstoque = (p.quantidade_atual * (p.preco_custo || 0)).toFixed(2);
+
+                    return `
+                        <tr>
+                            <td>${p.sku || '-'}</td>
+                            <td>${p.nome}</td>
+                            <td>${p.categoria || '-'}</td>
+                            <td><strong>${p.quantidade_atual}</strong></td>
+                            <td>${p.quantidade_minima}</td>
+                            <td>${statusBadge}</td>
+                            <td>R$ ${valorEstoque}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                mostrarAlerta('Erro ao carregar produtos: ' + error.message, 'danger');
+            }
+        }
+
+        async function carregarHistorico() {
+            try {
+                const produtoId = document.getElementById('produtoFiltroHistorico').value;
+                const url = produtoId ? `/estoque/movimentacoes/${produtoId}` : '/estoque/movimentacoes/0';
+                
+                let movimentacoes = [];
+                if (produtoId) {
+                    movimentacoes = await apiGet(url);
+                } else {
+                    const produtos = await apiGet('/produtos?limit=1000');
+                    for (const p of produtos) {
+                        try {
+                            const movs = await apiGet(`/estoque/movimentacoes/${p.id}`);
+                            movimentacoes = movimentacoes.concat(movs);
+                        } catch (e) {
+                            // Ignorar erro
+                        }
+                    }
+                    movimentacoes.sort((a, b) => new Date(b.data_movimento) - new Date(a.data_movimento));
+                }
+
+                const tabela = document.getElementById('tabelaHistorico');
+
+                if (movimentacoes.length === 0) {
+                    tabela.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma movimentação registrada</td></tr>';
+                    return;
+                }
+
+                tabela.innerHTML = movimentacoes.slice(0, 100).map(m => {
+                    const tipoBadge = m.tipo === 'ENTRADA' ?
+                        '<span class="badge bg-success">Entrada</span>' :
+                        '<span class="badge bg-danger">Saída</span>';
+                    
+                    return `
+                        <tr>
+                            <td>${new Date(m.data_movimento).toLocaleString('pt-BR')}</td>
+                            <td>${produtosParaMovimento[m.produto_id]?.nome || m.produto_id}</td>
+                            <td>${tipoBadge}</td>
+                            <td>${m.quantidade}</td>
+                            <td>${m.motivo || '-'}</td>
+                            <td>${m.observacao || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+            }
+        }
+
+        function atualizarInfoProduto() {
+            const produtoId = document.getElementById('produto_id').value;
+            const infoSem = document.getElementById('infoSemSelecao');
+            const infoCom = document.getElementById('infoComSelecao');
+
+            if (!produtoId) {
+                infoSem.style.display = 'block';
+                infoCom.style.display = 'none';
+                return;
+            }
+
+            const produto = produtosParaMovimento[produtoId];
+            if (produto) {
+                document.getElementById('info-nome').textContent = produto.nome;
+                document.getElementById('info-sku').textContent = produto.sku || '-';
+                document.getElementById('info-quantidade').textContent = produto.quantidade_atual;
+                document.getElementById('info-minima').textContent = produto.quantidade_minima;
+                document.getElementById('info-status').innerHTML = produto.quantidade_atual <= produto.quantidade_minima ?
+                    '<span class="badge bg-danger">Baixo</span>' :
+                    '<span class="badge bg-success">OK</span>';
+                document.getElementById('info-preco-custo').textContent = formatarMoeda(produto.preco_custo || 0);
+                document.getElementById('info-preco-venda').textContent = formatarMoeda(produto.preco_venda || 0);
+
+                infoSem.style.display = 'none';
+                infoCom.style.display = 'block';
+            }
+        }
+
+        async function registrarMovimento() {
+            const produtoId = document.getElementById('produto_id').value;
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+            const motivo = document.getElementById('motivo').value || null;
+            const observacao = document.getElementById('observacao').value || null;
+
+            if (!produtoId || !quantidade) {
+                mostrarAlerta('Produto e quantidade são obrigatórios', 'warning');
+                return;
+            }
+
+            const dados = {
+                produto_id: parseInt(produtoId),
+                tipo: tipo,
+                quantidade: quantidade,
+                motivo: motivo,
+                observacao: observacao
+            };
+
+            try {
+                await apiPost('/estoque/movimentar', dados);
+                mostrarAlerta(`Movimentação de ${tipo.toLowerCase()} registrada com sucesso!`, 'success');
+                
+                document.getElementById('formMovimentacao').reset();
+                document.getElementById('infoSemSelecao').style.display = 'block';
+                document.getElementById('infoComSelecao').style.display = 'none';
+                
+                carregarRelatorio();
+                carregarProdutosEstoque();
+                carregarHistorico();
+            } catch (error) {
+                mostrarAlerta('Erro ao registrar movimentação: ' + error.message, 'danger');
+            }
+        }
+    </script>
+</body>
+</html>

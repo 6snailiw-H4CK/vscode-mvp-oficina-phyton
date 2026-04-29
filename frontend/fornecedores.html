@@ -1,0 +1,262 @@
+<!-- Página de Fornecedores -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fornecedores - Sistema Simples</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><i class="bi bi-boxes"></i> Sistema Simples</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html"><i class="bi bi-people"></i> Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="fornecedores.html"><i class="bi bi-shop"></i> Fornecedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="produtos.html"><i class="bi bi-box"></i> Produtos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="estoque.html"><i class="bi bi-graph-up"></i> Estoque</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ordens-servico.html"><i class="bi bi-tools"></i> Ordens de Serviço</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-6"><i class="bi bi-shop"></i> Fornecedores</h1>
+                <p class="text-muted">Gestão de fornecedores e contatos</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12 d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalFornecedor">
+                    <i class="bi bi-person-plus"></i> Novo Fornecedor
+                </button>
+                <button class="btn btn-outline-secondary" onclick="carregarFornecedores()">
+                    <i class="bi bi-arrow-clockwise"></i> Atualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Lista de Fornecedores</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>CNPJ</th>
+                                    <th>Email</th>
+                                    <th>Telefone</th>
+                                    <th>Cidade</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaFornecedores">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Carregando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Novo/Editar Fornecedor -->
+    <div class="modal fade" id="modalFornecedor" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalFornecedor">Novo Fornecedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formFornecedor">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cnpj" class="form-label">CNPJ</label>
+                                <input type="text" class="form-control" id="cnpj" placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="telefone" placeholder="(11) 99999-0000">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="endereco" class="form-label">Endereço</label>
+                            <input type="text" class="form-control" id="endereco">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="cidade" class="form-label">Cidade</label>
+                                <input type="text" class="form-control" id="cidade">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="estado" class="form-label">Estado</label>
+                                <input type="text" class="form-control" id="estado" placeholder="SP" maxlength="2">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarFornecedor">Salvar Fornecedor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light text-center py-4 mt-5 border-top">
+        <p class="text-muted mb-0">Sistema Simples v1.0.0 © 2026</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let fornecedorEmEdicao = null;
+        let modalFornecedor;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            modalFornecedor = new bootstrap.Modal(document.getElementById('modalFornecedor'));
+            carregarFornecedores();
+
+            document.getElementById('btnSalvarFornecedor').addEventListener('click', salvarFornecedor);
+            document.getElementById('modalFornecedor').addEventListener('hidden.bs.modal', limparFormulario);
+        });
+
+        async function carregarFornecedores() {
+            try {
+                const fornecedores = await apiGet('/fornecedores?limit=1000');
+                const tabela = document.getElementById('tabelaFornecedores');
+
+                if (fornecedores.length === 0) {
+                    tabela.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Nenhum fornecedor cadastrado</td></tr>';
+                    return;
+                }
+
+                tabela.innerHTML = fornecedores.map(fornecedor => `
+                    <tr>
+                        <td>${fornecedor.id}</td>
+                        <td>${fornecedor.nome}</td>
+                        <td>${fornecedor.cnpj || '-'}</td>
+                        <td>${fornecedor.email || '-'}</td>
+                        <td>${fornecedor.telefone || '-'}</td>
+                        <td>${fornecedor.cidade || '-'}</td>
+                        <td>
+                            <span class="badge bg-${fornecedor.ativo ? 'success' : 'danger'}">
+                                ${fornecedor.ativo ? 'Ativo' : 'Inativo'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="editarFornecedor(${fornecedor.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deletarFornecedor(${fornecedor.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                mostrarAlerta('Erro ao carregar fornecedores: ' + error.message, 'danger');
+            }
+        }
+
+        async function editarFornecedor(id) {
+            try {
+                const fornecedor = await apiGet(`/fornecedores/${id}`);
+                document.getElementById('nome').value = fornecedor.nome;
+                document.getElementById('cnpj').value = fornecedor.cnpj || '';
+                document.getElementById('email').value = fornecedor.email || '';
+                document.getElementById('telefone').value = fornecedor.telefone || '';
+                document.getElementById('endereco').value = fornecedor.endereco || '';
+                document.getElementById('cidade').value = fornecedor.cidade || '';
+                document.getElementById('estado').value = fornecedor.estado || '';
+
+                fornecedorEmEdicao = id;
+                document.getElementById('tituloModalFornecedor').textContent = 'Editar Fornecedor';
+                modalFornecedor.show();
+            } catch (error) {
+                mostrarAlerta('Erro ao carregar fornecedor: ' + error.message, 'danger');
+            }
+        }
+
+        async function salvarFornecedor() {
+            const dados = {
+                nome: document.getElementById('nome').value,
+                cnpj: document.getElementById('cnpj').value || null,
+                email: document.getElementById('email').value || null,
+                telefone: document.getElementById('telefone').value || null,
+                endereco: document.getElementById('endereco').value || null,
+                cidade: document.getElementById('cidade').value || null,
+                estado: document.getElementById('estado').value || null,
+            };
+
+            try {
+                if (fornecedorEmEdicao) {
+                    await apiPut(`/fornecedores/${fornecedorEmEdicao}`, dados);
+                    mostrarAlerta('Fornecedor atualizado com sucesso!', 'success');
+                } else {
+                    await apiPost('/fornecedores', dados);
+                    mostrarAlerta('Fornecedor criado com sucesso!', 'success');
+                }
+                modalFornecedor.hide();
+                carregarFornecedores();
+            } catch (error) {
+                mostrarAlerta('Erro ao salvar fornecedor: ' + error.message, 'danger');
+            }
+        }
+
+        async function deletarFornecedor(id) {
+            if (!confirm('Deseja desativar este fornecedor?')) {
+                return;
+            }
+
+            try {
+                await apiDelete(`/fornecedores/${id}`);
+                mostrarAlerta('Fornecedor desativado com sucesso!', 'success');
+                carregarFornecedores();
+            } catch (error) {
+                mostrarAlerta('Erro ao desativar fornecedor: ' + error.message, 'danger');
+            }
+        }
+
+        function limparFormulario() {
+            fornecedorEmEdicao = null;
+            document.getElementById('tituloModalFornecedor').textContent = 'Novo Fornecedor';
+            document.getElementById('formFornecedor').reset();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!-- Página Placeholder - Estoque -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque - Sistema Simples</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><i class="bi bi-boxes"></i> Sistema Simples</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clientes.html"><i class="bi bi-people"></i> Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="fornecedores.html"><i class="bi bi-shop"></i> Fornecedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="produtos.html"><i class="bi bi-box"></i> Produtos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="estoque.html"><i class="bi bi-graph-up"></i> Estoque</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ordens-servico.html"><i class="bi bi-tools"></i> Ordens de Serviço</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-6"><i class="bi bi-graph-up"></i> Estoque</h1>
+                <p class="text-muted">Movimentação, relatório e gestão de produtos em estoque</p>
+            </div>
+        </div>
+
+        <!-- Cards de Resumo -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-primary shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Total de Produtos</h6>
+                        <h2 id="total-produtos">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-danger shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Estoque Baixo</h6>
+                        <h2 id="estoque-baixo">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-success shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Valor Total</h6>
+                        <h2 id="valor-total">R$ 0,00</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-left-warning shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Última Atualização</h6>
+                        <p class="mb-0 text-small" id="ultima-atualizacao">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Abas de funcionalidades -->
+        <ul class="nav nav-tabs mb-4" id="estoqueTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="movimentacao-tab" data-bs-toggle="tab" data-bs-target="#movimentacao" type="button">
+                    <i class="bi bi-arrow-left-right"></i> Movimentação
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="produtos-tab" data-bs-toggle="tab" data-bs-target="#produtos" type="button">
+                    <i class="bi bi-box"></i> Produtos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button">
+                    <i class="bi bi-clock-history"></i> Histórico
+                </button>
+            </li>
+        </ul>
+
+        <!-- Conteúdo das Abas -->
+        <div class="tab-content" id="estoqueTabContent">
+            <!-- Aba Movimentação -->
+            <div class="tab-pane fade show active" id="movimentacao" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Registrar Movimentação</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="formMovimentacao">
+                                    <div class="mb-3">
+                                        <label for="produto_id" class="form-label">Produto *</label>
+                                        <select class="form-select" id="produto_id" required>
+                                            <option value="">Selecione um produto...</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="tipo_movimento" class="form-label">Tipo de Movimentação *</label>
+                                        <div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="tipo" id="entrada" value="ENTRADA" checked>
+                                                <label class="form-check-label" for="entrada">
+                                                    <span class="badge bg-success">Entrada</span>
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="tipo" id="saida" value="SAIDA">
+                                                <label class="form-check-label" for="saida">
+                                                    <span class="badge bg-danger">Saída</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="quantidade" class="form-label">Quantidade *</label>
+                                        <input type="number" class="form-control" id="quantidade" min="1" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="motivo" class="form-label">Motivo</label>
+                                        <select class="form-select" id="motivo">
+                                            <option value="">Selecione...</option>
+                                            <option value="COMPRA">Compra</option>
+                                            <option value="DEVOLUCAO">Devolução</option>
+                                            <option value="TRANSFERENCIA">Transferência</option>
+                                            <option value="INVENTARIO">Inventário</option>
+                                            <option value="DANO">Dano</option>
+                                            <option value="USO">Uso</option>
+                                            <option value="OUTRO">Outro</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="observacao" class="form-label">Observação</label>
+                                        <textarea class="form-control" id="observacao" rows="3" placeholder="Detalhes adicionais..."></textarea>
+                                    </div>
+
+                                    <button type="button" class="btn btn-primary w-100" id="btnRegistrarMovimento">
+                                        <i class="bi bi-check-circle"></i> Registrar Movimentação
+                                    </button>\n                                </form>\n                            </div>\n                        </div>\n                    </div>\n\n                    <div class=\"col-lg-6\">\n                        <div class=\"card\">\n                            <div class=\"card-header bg-light\">\n                                <h5 class=\"mb-0\">Informações do Produto</h5>\n                            </div>\n                            <div class=\"card-body\">\n                                <div id=\"infoSemSelecao\" class=\"text-muted text-center py-4\">\n                                    Selecione um produto para ver detalhes\n                                </div>\n                                <div id=\"infoComSelecao\" style=\"display: none;\">\n                                    <dl class=\"row\">\n                                        <dt class=\"col-sm-4\">Produto:</dt>\n                                        <dd class=\"col-sm-8\" id=\"info-nome\">-</dd>\n                                        \n                                        <dt class=\"col-sm-4\">SKU:</dt>\n                                        <dd class=\"col-sm-8\" id=\"info-sku\">-</dd>\n                                        \n                                        <dt class=\"col-sm-4\">Quantidade Atual:</dt>\n                                        <dd class=\"col-sm-8\">\n                                            <strong id=\"info-quantidade\">-</strong>\n                                        </dd>\n                                        \n                                        <dt class=\"col-sm-4\">Quantidade Mínima:</dt>\n                                        <dd class=\"col-sm-8\" id=\"info-minima\">-</dd>\n                                        \n                                        <dt class=\"col-sm-4\">Status:</dt>\n                                        <dd class=\"col-sm-8\" id=\"info-status\">-</dd>\n                                        \n                                        <dt class=\"col-sm-4\">Preço Custo:</dt>\n                                        <dd class=\"col-sm-8\" id=\"info-preco-custo\">-</dd>\n                                        \n                                        <dt class=\"col-sm-4\">Preço Venda:</dt>\n                                        <dd class=\"col-sm-8\" id=\"info-preco-venda\">-</dd>\n                                    </dl>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n\n            <!-- Aba Produtos -->\n            <div class=\"tab-pane fade\" id=\"produtos\" role=\"tabpanel\">\n                <div class=\"card\">\n                    <div class=\"card-header bg-light d-flex justify-content-between align-items-center\">\n                        <h5 class=\"mb-0\">Produtos em Estoque</h5>\n                        <button class=\"btn btn-sm btn-outline-secondary\" onclick=\"carregarProdutosEstoque()\">\n                            <i class=\"bi bi-arrow-clockwise\"></i>\n                        </button>\n                    </div>\n                    <div class=\"table-responsive\">\n                        <table class=\"table table-hover mb-0\">\n                            <thead>\n                                <tr>\n                                    <th>SKU</th>\n                                    <th>Nome</th>\n                                    <th>Categoria</th>\n                                    <th>Quantidade</th>\n                                    <th>Mínimo</th>\n                                    <th>Status</th>\n                                    <th>Valor Estoque</th>\n                                </tr>\n                            </thead>\n                            <tbody id=\"tabelaProdutosEstoque\">\n                                <tr><td colspan=\"7\" class=\"text-center text-muted\">Carregando...</td></tr>\n                            </tbody>\n                        </table>\n                    </div>\n                </div>\n            </div>\n\n            <!-- Aba Histórico -->\n            <div class=\"tab-pane fade\" id=\"historico\" role=\"tabpanel\">\n                <div class=\"row mb-3\">\n                    <div class=\"col-md-4\">\n                        <label for=\"produtoFiltroHistorico\" class=\"form-label\">Filtrar por Produto</label>\n                        <select class=\"form-select\" id=\"produtoFiltroHistorico\" onchange=\"carregarHistorico()\">\n                            <option value=\"\">Todos os produtos</option>\n                        </select>\n                    </div>\n                </div>\n\n                <div class=\"card\">\n                    <div class=\"card-header bg-light d-flex justify-content-between align-items-center\">\n                        <h5 class=\"mb-0\">Histórico de Movimentações</h5>\n                        <button class=\"btn btn-sm btn-outline-secondary\" onclick=\"carregarHistorico()\">\n                            <i class=\"bi bi-arrow-clockwise\"></i>\n                        </button>\n                    </div>\n                    <div class=\"table-responsive\">\n                        <table class=\"table table-hover mb-0\">\n                            <thead>\n                                <tr>\n                                    <th>Data</th>\n                                    <th>Produto</th>\n                                    <th>Tipo</th>\n                                    <th>Quantidade</th>\n                                    <th>Motivo</th>\n                                    <th>Observação</th>\n                                </tr>\n                            </thead>\n                            <tbody id=\"tabelaHistorico\">\n                                <tr><td colspan=\"6\" class=\"text-center text-muted\">Carregando...</td></tr>\n                            </tbody>\n                        </table>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </main>\n\n    <footer class=\"bg-light text-center py-4 mt-5 border-top\">\n        <p class=\"text-muted mb-0\">Sistema Simples v1.0.0 © 2026</p>\n    </footer>\n\n    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>\n    <script src=\"js/api.js\"></script>\n    <script>\n        let produtosMap = {};\n        let produtosParaMovimento = {};\n\n        document.addEventListener('DOMContentLoaded', function() {\n            carregarRelatorio();\n            carregarProdutosParaMovimento();\n            carregarProdutosEstoque();\n            carregarHistorico();\n\n            document.getElementById('btnRegistrarMovimento').addEventListener('click', registrarMovimento);\n            document.getElementById('produto_id').addEventListener('change', atualizarInfoProduto);\n        });\n\n        async function carregarRelatorio() {\n            try {\n                const relatorio = await apiGet('/estoque/relatorio/resumo');\n                document.getElementById('total-produtos').textContent = relatorio.total_produtos;\n                document.getElementById('estoque-baixo').textContent = relatorio.produtos_com_estoque_baixo;\n                document.getElementById('valor-total').textContent = formatarMoeda(relatorio.valor_total_estoque);\n                document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleString('pt-BR');\n            } catch (error) {\n                console.error('Erro ao carregar relatório:', error);\n            }\n        }\n\n        async function carregarProdutosParaMovimento() {\n            try {\n                const produtos = await apiGet('/produtos?limit=1000');\n                const select = document.getElementById('produto_id');\n                select.innerHTML = '<option value=\"\">Selecione um produto...</option>';\n                produtosParaMovimento = {};\n\n                produtos.forEach(p => {\n                    produtosParaMovimento[p.id] = p;\n                    const option = document.createElement('option');\n                    option.value = p.id;\n                    option.textContent = `${p.nome} (SKU: ${p.sku || 'N/A'})`;\n                    select.appendChild(option);\n                });\n\n                carregarProdutosParaFiltro();\n            } catch (error) {\n                mostrarAlerta('Erro ao carregar produtos: ' + error.message, 'danger');\n            }\n        }\n\n        function carregarProdutosParaFiltro() {\n            const select = document.getElementById('produtoFiltroHistorico');\n            select.innerHTML = '<option value=\"\">Todos os produtos</option>';\n\n            Object.values(produtosParaMovimento).forEach(p => {\n                const option = document.createElement('option');\n                option.value = p.id;\n                option.textContent = p.nome;\n                select.appendChild(option);\n            });\n        }\n\n        async function carregarProdutosEstoque() {\n            try {\n                const produtos = await apiGet('/produtos?limit=1000');\n                const tabela = document.getElementById('tabelaProdutosEstoque');\n\n                if (produtos.length === 0) {\n                    tabela.innerHTML = '<tr><td colspan=\"7\" class=\"text-center text-muted\">Nenhum produto cadastrado</td></tr>';\n                    return;\n                }\n\n                tabela.innerHTML = produtos.map(p => {\n                    const statusBadge = p.quantidade_atual <= p.quantidade_minima ?\n                        '<span class=\"badge bg-danger\">Baixo</span>' :\n                        '<span class=\"badge bg-success\">OK</span>';\n                    \n                    const valorEstoque = (p.quantidade_atual * (p.preco_custo || 0)).toFixed(2);\n\n                    return `\n                        <tr>\n                            <td>${p.sku || '-'}</td>\n                            <td>${p.nome}</td>\n                            <td>${p.categoria || '-'}</td>\n                            <td><strong>${p.quantidade_atual}</strong></td>\n                            <td>${p.quantidade_minima}</td>\n                            <td>${statusBadge}</td>\n                            <td>R$ ${valorEstoque}</td>\n                        </tr>\n                    `;\n                }).join('');\n            } catch (error) {\n                mostrarAlerta('Erro ao carregar produtos: ' + error.message, 'danger');\n            }\n        }\n\n        async function carregarHistorico() {\n            try {\n                const produtoId = document.getElementById('produtoFiltroHistorico').value;\n                const url = produtoId ? `/estoque/movimentacoes/${produtoId}` : '/estoque/movimentacoes/0';\n                \n                let movimentacoes = [];\n                if (produtoId) {\n                    movimentacoes = await apiGet(url);\n                } else {\n                    // Se não filtrar, carregar todos os produtos e suas movimentações\n                    const produtos = await apiGet('/produtos?limit=1000');\n                    for (const p of produtos) {\n                        try {\n                            const movs = await apiGet(`/estoque/movimentacoes/${p.id}`);\n                            movimentacoes = movimentacoes.concat(movs);\n                        } catch (e) {\n                            // Ignorar erro\n                        }\n                    }\n                    movimentacoes.sort((a, b) => new Date(b.data_movimento) - new Date(a.data_movimento));\n                }\n\n                const tabela = document.getElementById('tabelaHistorico');\n\n                if (movimentacoes.length === 0) {\n                    tabela.innerHTML = '<tr><td colspan=\"6\" class=\"text-center text-muted\">Nenhuma movimentação registrada</td></tr>';\n                    return;\n                }\n\n                tabela.innerHTML = movimentacoes.slice(0, 100).map(m => {\n                    const tipoBadge = m.tipo === 'ENTRADA' ?\n                        '<span class=\"badge bg-success\">Entrada</span>' :\n                        '<span class=\"badge bg-danger\">Saída</span>';\n                    \n                    return `\n                        <tr>\n                            <td>${new Date(m.data_movimento).toLocaleString('pt-BR')}</td>\n                            <td>${produtosParaMovimento[m.produto_id]?.nome || m.produto_id}</td>\n                            <td>${tipoBadge}</td>\n                            <td>${m.quantidade}</td>\n                            <td>${m.motivo || '-'}</td>\n                            <td>${m.observacao || '-'}</td>\n                        </tr>\n                    `;\n                }).join('');\n            } catch (error) {\n                console.error('Erro ao carregar histórico:', error);\n            }\n        }\n\n        function atualizarInfoProduto() {\n            const produtoId = document.getElementById('produto_id').value;\n            const infoSem = document.getElementById('infoSemSelecao');\n            const infoCom = document.getElementById('infoComSelecao');\n\n            if (!produtoId) {\n                infoSem.style.display = 'block';\n                infoCom.style.display = 'none';\n                return;\n            }\n\n            const produto = produtosParaMovimento[produtoId];\n            if (produto) {\n                document.getElementById('info-nome').textContent = produto.nome;\n                document.getElementById('info-sku').textContent = produto.sku || '-';\n                document.getElementById('info-quantidade').textContent = produto.quantidade_atual;\n                document.getElementById('info-minima').textContent = produto.quantidade_minima;\n                document.getElementById('info-status').innerHTML = produto.quantidade_atual <= produto.quantidade_minima ?\n                    '<span class=\"badge bg-danger\">Baixo</span>' :\n                    '<span class=\"badge bg-success\">OK</span>';\n                document.getElementById('info-preco-custo').textContent = formatarMoeda(produto.preco_custo || 0);\n                document.getElementById('info-preco-venda').textContent = formatarMoeda(produto.preco_venda || 0);\n\n                infoSem.style.display = 'none';\n                infoCom.style.display = 'block';\n            }\n        }\n\n        async function registrarMovimento() {\n            const produtoId = document.getElementById('produto_id').value;\n            const tipo = document.querySelector('input[name=\"tipo\"]:checked').value;\n            const quantidade = parseInt(document.getElementById('quantidade').value);\n            const motivo = document.getElementById('motivo').value || null;\n            const observacao = document.getElementById('observacao').value || null;\n\n            if (!produtoId || !quantidade) {\n                mostrarAlerta('Produto e quantidade são obrigatórios', 'warning');\n                return;\n            }\n\n            const dados = {\n                produto_id: parseInt(produtoId),\n                tipo: tipo,\n                quantidade: quantidade,\n                motivo: motivo,\n                observacao: observacao\n            };\n\n            try {\n                await apiPost('/estoque/movimentar', dados);\n                mostrarAlerta(`Movimentação de ${tipo.toLowerCase()} registrada com sucesso!`, 'success');\n                \n                document.getElementById('formMovimentacao').reset();\n                document.getElementById('infoSemSelecao').style.display = 'block';\n                document.getElementById('infoComSelecao').style.display = 'none';\n                \n                carregarRelatorio();\n                carregarProdutosEstoque();\n                carregarHistorico();\n            } catch (error) {\n                mostrarAlerta('Erro ao registrar movimentação: ' + error.message, 'danger');\n            }\n        }\n    </script>\n</body>\n</html>

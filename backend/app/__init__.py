@@ -1,0 +1,1 @@
+"""Sistema Simples - Backend Application"""

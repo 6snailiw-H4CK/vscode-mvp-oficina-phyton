@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Simples - Teste de Conexão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container-test {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        .header-test {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header-test h1 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .status-item.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .status-item.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .status-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .status-text {
+            flex: 1;
+        }
+        .status-text strong {
+            display: block;
+            color: #333;
+        }
+        .status-text small {
+            color: #666;
+        }
+        .endpoint-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .endpoint-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-left: 3px solid #667eea;
+            font-size: 14px;
+        }
+        .endpoint-item code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #d63384;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn-test {
+            padding: 10px 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary-test {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary-test:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary-test {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary-test:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            color: #004085;
+            display: none;
+        }
+        .result-box.show {
+            display: block;
+        }
+        .result-box.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .result-box.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-test">
+        <div class="header-test">
+            <h1>🚀 Sistema Simples</h1>
+            <p>Teste de Conexão e Funcionalidade</p>
+        </div>
+
+        <div id="statusContainer"></div>
+
+        <div class="endpoint-list">
+            <strong style="color: #667eea;">📋 Endpoints Disponíveis:</strong>
+            <div class="endpoint-item">
+                📊 <code>GET /api/v1/clientes</code> - Listar clientes
+            </div>
+            <div class="endpoint-item">
+                📦 <code>GET /api/v1/produtos</code> - Listar produtos
+            </div>
+            <div class="endpoint-item">
+                🏭 <code>GET /api/v1/fornecedores</code> - Listar fornecedores
+            </div>
+            <div class="endpoint-item">
+                📝 <code>GET /api/v1/ordens-servico</code> - Listar ordens
+            </div>
+            <div class="endpoint-item">
+                📊 <code>GET /api/v1/estoque</code> - Relatório de estoque
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-test btn-primary-test" onclick="testarAPI()">🧪 Testar API</button>
+            <button class="btn-test btn-primary-test" onclick="irParaDashboard()">📊 Dashboard</button>
+        </div>
+
+        <div id="resultBox" class="result-box"></div>
+    </div>
+
+    <script>
+        // Teste de conexão
+        async function verificarConexao() {
+            const statusContainer = document.getElementById('statusContainer');
+            statusContainer.innerHTML = '';
+
+            // Teste 1: Health Check
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                adicionarStatus('Health Check', true, data.service + ' v' + data.version);
+            } catch (e) {
+                adicionarStatus('Health Check', false, e.message);
+            }
+
+            // Teste 2: API Root
+            try {
+                const response = await fetch('/api/v1');
+                const data = await response.json();
+                adicionarStatus('API Root', true, data.service + ' pronta');
+            } catch (e) {
+                adicionarStatus('API Root', false, e.message);
+            }
+
+            // Teste 3: Documentação
+            try {
+                const response = await fetch('/docs');
+                adicionarStatus('Documentação Swagger', response.ok, response.ok ? 'Disponível em /docs' : 'Erro ao carregar');
+            } catch (e) {
+                adicionarStatus('Documentação Swagger', false, e.message);
+            }
+        }
+
+        function adicionarStatus(nome, sucesso, mensagem) {
+            const statusContainer = document.getElementById('statusContainer');
+            const statusItem = document.createElement('div');
+            statusItem.className = 'status-item ' + (sucesso ? 'success' : 'error');
+            statusItem.innerHTML = `
+                <div class="status-icon">${sucesso ? '✓' : '✗'}</div>
+                <div class="status-text">
+                    <strong>${nome}</strong>
+                    <small>${mensagem}</small>
+                </div>
+            `;
+            statusContainer.appendChild(statusItem);
+        }
+
+        async function testarAPI() {
+            const resultBox = document.getElementById('resultBox');
+            resultBox.innerHTML = '<strong>⏳ Testando endpoints...</strong>';
+            resultBox.className = 'result-box show';
+
+            let html = '<strong>📊 Resultados do Teste:</strong><br><br>';
+
+            const endpoints = [
+                { nome: 'Clientes', url: '/api/v1/clientes-demo' },
+                { nome: 'Produtos', url: '/api/v1/produtos-demo' },
+                { nome: 'Fornecedores', url: '/api/v1/fornecedores-demo' }
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint.url);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const count = Array.isArray(data) ? data.length : (data.total || 0);
+                        html += `✓ <strong>${endpoint.nome}</strong>: ${count} registros<br>`;
+                    } else {
+                        html += `✗ <strong>${endpoint.nome}</strong>: Erro ${response.status}<br>`;
+                    }
+                } catch (e) {
+                    html += `✗ <strong>${endpoint.nome}</strong>: ${e.message}<br>`;
+                }
+            }
+
+            resultBox.innerHTML = html;
+            resultBox.className = 'result-box show success';
+        }
+
+        function irParaDashboard() {
+            window.location.href = '/';
+        }
+
+        // Executar verificação ao carregar
+        window.addEventListener('load', verificarConexao);
+    </script>
+</body>
+</html>
