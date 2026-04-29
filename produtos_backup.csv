@@ -1,0 +1,8 @@
+id,nome,sku,descricao,categoria,quantidade_atual,quantidade_minima,preco_custo,preco_venda,fornecedor_id,fornecedor_nome,ativo,data_cadastro,data_atualizacao
+1,Produto A,SKU-001,Descrição do Produto A,Eletrônicos,47,10,100.0,150.0,1,Fornecedor ABC Ltda,True,2026-04-30T10:30:39.482097,2026-05-01T20:14:35.756088
+2,Produto B,SKU-002,Descrição do Produto B,Vestuário,29,5,50.0,80.0,2,Distribuidor XYZ,True,2026-04-30T10:30:39.482097,2026-05-01T20:14:35.756088
+6,Produto Teste KKKK,TESTEOS35335f88,,,6,1,,200.0,,,True,2026-04-29T02:56:37.424211,2026-05-01T20:14:35.756088
+7,produto testes,03,,test,4,3,50.0,150.0,,,True,2026-04-29T03:16:43.763751,2026-05-01T20:14:35.756088
+9,COMBUSTIVEL,,,,999,5,,50.0,,,True,2026-05-01T19:42:22.104251,2026-05-01T20:16:53.230219
+10,PAGAMENTO PARCIAL,,,,999,0,,10.0,,,True,2026-05-01T20:19:06.766708,2026-05-01T20:20:17.374250
+11,PRODUTO SEM ESTOQUE,000,,TESTE,2,1,55.0,90.0,,,True,2026-05-01T20:27:42.505709,2026-05-01T20:27:42.505709

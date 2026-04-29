@@ -197,19 +197,18 @@
                             <h5>Itens da Ordem</h5>
                             <div class="row">
                                                             <div class="col-md-4 mb-3">
+                                                                <label for="item_produto_busca" class="form-label">Buscar produto</label>
+                                                                <input type="text" class="form-control mb-2" id="item_produto_busca" placeholder="Buscar por nome ou SKU">
                                                                 <label for="item_produto_id" class="form-label">Produto</label>
-                                                                                                                                <select class="form-select" id="item_produto_id">
-                                                                                                                                    <option value="">Selecione...</option>
-                                                                                                                                </select>
-                                                                                                                                <div class="d-flex gap-2 mt-2 align-items-center">
-                                                                                                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="abrirCadastroRapidoProduto()">
-                                                                                                                                        <i class="bi bi-plus"></i> Produto rápido
-                                                                                                                                    </button>
-                                                                                                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="abrirReposicaoEstoque()">
-                                                                                                                                        <i class="bi bi-box-arrow-in-down"></i> Repor estoque
-                                                                                                                                    </button>
-                                                                                                                                    <small class="text-muted ms-2" id="info_estoque_disponivel"></small>
-                                                                                                                                </div>
+                                                                <select class="form-select" id="item_produto_id">
+                                                                    <option value="">Selecione...</option>
+                                                                </select>
+                                                                <div class="d-flex gap-2 mt-2 align-items-center">
+                                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="abrirCadastroRapidoProduto()">
+                                                                        <i class="bi bi-plus"></i> Produto rápido
+                                                                    </button>
+                                                                    <small class="text-muted ms-2" id="info_estoque_disponivel"></small>
+                                                                </div>
                                                             </div>
                                                             <div class="col-md-4 mb-3">
                                                                 <label for="item_descricao" class="form-label">Descrição do item (serviço)</label>
@@ -366,6 +365,7 @@
             aplicarFiltroPeriodo();
                         document.getElementById('btnSalvarOrdem').addEventListener('click', salvarOrdemServico);
             document.getElementById('item_produto_id').addEventListener('change', atualizarProdutoItem);
+            document.getElementById('item_produto_busca').addEventListener('input', debounce(filtrarProdutosOrdem, 200));
             document.getElementById('item_quantidade').addEventListener('input', atualizarSubtotalItem);
             document.getElementById('item_valor_unitario').addEventListener('input', atualizarSubtotalItem);
             document.getElementById('modalOrdemServico').addEventListener('hidden.bs.modal', limparFormulario);
@@ -401,16 +401,8 @@
         async function carregarProdutosOrdem() {
                         try {
                 const produtos = await apiGet('/produtos?limit=1000&ativo=true');
-                const select = document.getElementById('item_produto_id');
-                select.innerHTML = '<option value="">Selecione...</option>';
                 produtosOrdem = produtos;
-
-                produtos.forEach(produto => {
-                    const option = document.createElement('option');
-                    option.value = produto.id;
-                    option.textContent = `${produto.nome} (SKU: ${produto.sku})`;
-                    select.appendChild(option);
-                });
+                atualizarListaProdutosOrdem();
             } catch (error) {
                 mostrarAlerta('Erro ao carregar produtos para ordem de serviço: ' + error.message, 'danger');
             } finally {
@@ -441,12 +433,77 @@
                             }
                         }
 
+        function normalizarTexto(texto = '') {
+            return texto
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        }
+
+        function filtrarProdutosOrdem() {
+            const filtro = document.getElementById('item_produto_busca').value.trim();
+            atualizarListaProdutosOrdem(filtro);
+        }
+
+        function atualizarListaProdutosOrdem(filtro = '') {
+            const select = document.getElementById('item_produto_id');
+            select.innerHTML = '<option value="">Selecione...</option>';
+            const textoFiltro = normalizarTexto(filtro);
+            produtosOrdem
+                .filter(produto => {
+                    if (!textoFiltro) return true;
+                    const nome = normalizarTexto(produto.nome);
+                    const sku = normalizarTexto(produto.sku);
+                    const descricao = normalizarTexto(produto.descricao);
+                    return nome.includes(textoFiltro) || sku.includes(textoFiltro) || descricao.includes(textoFiltro);
+                })
+                .forEach(produto => {
+                    const option = document.createElement('option');
+                    option.value = produto.id;
+                    option.textContent = `${produto.nome} (SKU: ${produto.sku || '-'})`;
+                    select.appendChild(option);
+                });
+        }
+
         function atualizarSubtotalItem() {
                     const quantidade = Number(document.getElementById('item_quantidade').value) || 0;
                     const valorUnitario = Number(document.getElementById('item_valor_unitario').value) || 0;
                     document.getElementById('item_subtotal').value = formatarMoeda(quantidade * valorUnitario);
                     atualizarSaldo();
                 }
+
+        function atualizarSaldo() {
+            const valorTotal = Number(document.getElementById('valor_total').value.replace(',', '.')) || 0;
+            const tipoPagamento = document.getElementById('tipo_pagamento').value;
+            let valorPago = Number(document.getElementById('valor_pago').value) || 0;
+
+            if (tipoPagamento === 'TOTAL') {
+                valorPago = valorTotal;
+                document.getElementById('valor_pago').value = valorTotal.toFixed(2);
+            } else if (tipoPagamento === 'NAO') {
+                valorPago = 0;
+                document.getElementById('valor_pago').value = '0.00';
+            } else if (tipoPagamento === 'PARCIAL') {
+                if (valorPago > valorTotal) {
+                    valorPago = valorTotal;
+                    document.getElementById('valor_pago').value = valorTotal.toFixed(2);
+                }
+            }
+
+            const saldo = Math.max(0, valorTotal - valorPago);
+            document.getElementById('saldo_devedor').textContent = `R$ ${saldo.toFixed(2)}`;
+        }
+
+        function inferirTipoPagamento(valorPago, valorTotal) {
+            if (!valorPago || valorPago <= 0) {
+                return 'NAO';
+            }
+            if (valorPago >= valorTotal) {
+                return 'TOTAL';
+            }
+            return 'PARCIAL';
+        }
 
         function renderizarItensOrdem() {
             const tbody = document.querySelector('#tabelaItensOrdem tbody');
@@ -756,8 +813,10 @@
                 renderizarItensOrdem();
 
                                 document.getElementById('tituloModalOrdem').textContent = 'Editar Ordem de Serviço';
-                // preenche valor_pago se existir
-                document.getElementById('valor_pago').value = ordem.valor_pago || 0;
+                // preenche valor_pago se existir e ajusta tipo de pagamento
+                const valorPagoExistente = Number(ordem.valor_pago) || 0;
+                document.getElementById('valor_pago').value = valorPagoExistente.toFixed(2);
+                document.getElementById('tipo_pagamento').value = inferirTipoPagamento(valorPagoExistente, Number(document.getElementById('valor_total').value) || 0);
                 atualizarSaldo();
                 modalOrdem.show();
             } catch (error) {

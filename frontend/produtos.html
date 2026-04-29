@@ -41,12 +41,21 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-12">
+            <div class="col-12 d-flex flex-wrap gap-2">
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoProduto">
                     <i class="bi bi-plus-circle"></i> Novo Produto
                 </button>
                 <button class="btn btn-outline-secondary" onclick="carregarProdutos()">
                     <i class="bi bi-arrow-clockwise"></i> Atualizar
+                </button>
+                <button class="btn btn-outline-primary" onclick="abrirReposicaoEstoqueTodos()">
+                    <i class="bi bi-box-arrow-in-down"></i> Repor Estoque
+                </button>
+                <button class="btn btn-outline-danger" onclick="excluirTodosProdutos()">
+                    <i class="bi bi-trash"></i> Excluir Todos
+                </button>
+                <button class="btn btn-outline-success" onclick="abrirImportacaoProdutos()">
+                    <i class="bi bi-upload"></i> Importar Produtos
                 </button>
             </div>
         </div>
@@ -79,6 +88,63 @@
             </div>
         </div>
     </main>
+
+    <!-- Modal Importar Produtos -->
+    <div class="modal fade" id="modalImportarProdutos" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Importar Produtos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Arquivo de backup</label>
+                        <input type="file" class="form-control" id="produtoImportFile" accept=".csv,.json,.xlsx">
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-muted">
+                            Use o backup XLSX ou CSV/JSON com as colunas principais do seu relatório: Nome/Descrição e Preço. Apenas estes campos são obrigatórios.
+                        </p>
+                        <a href="/api/v1/produtos/template?format=csv" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="bi bi-file-earmark-arrow-down"></i> Baixar template CSV
+                        </a>
+                        <a href="/api/v1/produtos/template?format=json" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-file-earmark-arrow-down"></i> Baixar template JSON
+                        </a>
+                    </div>
+                    <div id="importStatus" class="small text-muted"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="importarProdutos()">Importar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Repor Estoque em Massa -->
+    <div class="modal fade" id="modalReposicaoEstoqueTodos" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Repor Estoque em Massa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Defina a quantidade total para todos os produtos ativos, usado para testes.</p>
+                    <div class="mb-3">
+                        <label for="repor_quantidade" class="form-label">Quantidade por produto</label>
+                        <input type="number" class="form-control" id="repor_quantidade" min="0" value="10">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="reporEstoqueTodos()">Aplicar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Novo/Editar Produto -->
     <div class="modal fade" id="modalNovoProduto" tabindex="-1">
@@ -153,9 +219,11 @@
     <script>
         let produtoEmEdicao = null;
         let modalProduto;
+        let modalImportacaoProduto;
 
         document.addEventListener('DOMContentLoaded', function() {
             modalProduto = new bootstrap.Modal(document.getElementById('modalNovoProduto'));
+            modalImportacaoProduto = new bootstrap.Modal(document.getElementById('modalImportarProdutos'));
             carregarProdutos();
             carregarFornecedores();
             document.getElementById('btnSalvarProduto').addEventListener('click', salvarProduto);
@@ -287,6 +355,81 @@
             }
         }
 
+        function abrirImportacaoProdutos() {
+            document.getElementById('produtoImportFile').value = '';
+            document.getElementById('importStatus').textContent = '';
+            modalImportacaoProduto.show();
+        }
+
+        async function importarProdutos() {
+            const fileInput = document.getElementById('produtoImportFile');
+            const arquivo = fileInput.files[0];
+            if (!arquivo) {
+                mostrarAlerta('Selecione um arquivo CSV, JSON ou XLSX para importar.', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', arquivo);
+            const statusText = document.getElementById('importStatus');
+            statusText.textContent = 'Importando produtos...';
+
+            try {
+                const response = await fetch('/api/v1/produtos/import', {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Erro desconhecido ao importar produtos.');
+                }
+                const result = await response.json();
+                statusText.textContent = `Importação concluída: ${result.imported} importados, ${result.updated} atualizados, ${result.skipped} ignorados.`;
+                mostrarAlerta(`Importação concluída: ${result.imported} importados, ${result.updated} atualizados.`, 'success');
+                carregarProdutos();
+                modalImportacaoProduto.hide();
+            } catch (error) {
+                statusText.textContent = '';
+                mostrarAlerta('Erro ao importar produtos: ' + error.message, 'danger');
+            }
+        }
+
+        async function abrirReposicaoEstoqueTodos() {
+            document.getElementById('repor_quantidade').value = 10;
+            const modal = new bootstrap.Modal(document.getElementById('modalReposicaoEstoqueTodos'));
+            modal.show();
+        }
+
+        async function reporEstoqueTodos() {
+            const quantidade = parseInt(document.getElementById('repor_quantidade').value, 10);
+            if (isNaN(quantidade) || quantidade < 0) {
+                mostrarAlerta('Informe uma quantidade válida para repor o estoque.', 'warning');
+                return;
+            }
+            try {
+                const result = await apiPost('/produtos/repor-tudo', { quantidade });
+                mostrarAlerta(`Estoque reposto: ${result.updated} produtos atualizados para ${quantidade}.`, 'success');
+                carregarProdutos();
+                const modalEl = document.getElementById('modalReposicaoEstoqueTodos');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } catch (error) {
+                mostrarAlerta('Erro ao repor estoque: ' + error.message, 'danger');
+            }
+        }
+
+        async function excluirTodosProdutos() {
+            if (!confirm('Tem certeza? Isso excluirá todos os produtos do sistema e limpará o estoque de teste.')) {
+                return;
+            }
+            try {
+                const result = await apiPost('/produtos/excluir-tudo', {});
+                mostrarAlerta(`Todos os produtos foram excluídos: ${result.deleted} registros marcados como inativos.`, 'success');
+                carregarProdutos();
+            } catch (error) {
+                mostrarAlerta('Erro ao excluir todos os produtos: ' + error.message, 'danger');
+            }
+        }
 
         function limparFormulario() {
             document.getElementById('formProduto').reset();
