@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.config import settings
 from app.database import Base, engine, SessionLocal
+from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from app.models.cliente import Cliente
 from app.models.fornecedor import Fornecedor
@@ -54,13 +55,13 @@ def initialize_database() -> None:
         # Se SQLite, verificar colunas adicionais que possam ter sido adicionadas ao modelo
         if settings.database_url.startswith("sqlite"):
             try:
-                with engine.connect() as conn:
+                with engine.begin() as conn:
                     # Verifica se coluna valor_pago existe na tabela ordens_servico
-                    res = conn.execute("PRAGMA table_info('ordens_servico')").fetchall()
+                    res = conn.execute(text("PRAGMA table_info('ordens_servico')")).fetchall()
                     cols = [r[1] for r in res]
                     if 'valor_pago' not in cols:
                         logger.info("Adicionando coluna 'valor_pago' em ordens_servico (SQLite)")
-                        conn.execute("ALTER TABLE ordens_servico ADD COLUMN valor_pago FLOAT")
+                        conn.execute(text("ALTER TABLE ordens_servico ADD COLUMN valor_pago FLOAT"))
             except Exception as e:
                 logger.warning(f"Falha ao ajustar esquema SQLite automaticamente: {e}")
 
