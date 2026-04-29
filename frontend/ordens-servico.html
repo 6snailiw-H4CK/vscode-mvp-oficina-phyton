@@ -8,6 +8,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .resultado-produto-card {
+            cursor: pointer;
+            transition: transform .15s ease, box-shadow .15s ease;
+            min-height: 72px;
+            border: 1px solid #e9ecef;
+        }
+        .resultado-produto-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.08);
+        }
+        .resultado-produto-card.selecionado {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
+        }
+        #item_produto_resultados {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        #item_produto_resultados .resultado-produto-card {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
@@ -158,34 +184,6 @@
                                 <label for="data_prevista_conclusao" class="form-label">Previsão de Conclusão</label>
                                 <input type="datetime-local" class="form-control" id="data_prevista_conclusao">
                             </div>
-                            <div class="col-md-4 mb-3">
-                                                            <label class="form-label">Valor Final</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text">R$</span>
-                                                                <input type="text" class="form-control fw-semibold" id="valor_total" readonly value="0,00">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4 mb-3">
-                                                            <label class="form-label">Pagamento</label>
-                                                            <div class="input-group">
-                                                                <select class="form-select" id="tipo_pagamento">
-                                                                    <option value="NAO">Não pago</option>
-                                                                    <option value="PARCIAL">Parcial</option>
-                                                                    <option value="TOTAL">Total</option>
-                                                                </select>
-                                                                <span class="input-group-text">R$</span>
-                                                                <input type="number" step="0.01" class="form-control" id="valor_pago" value="0">
-                                                            </div>
-                                                            <small class="text-muted">Saldo: <span id="saldo_devedor">R$ 0,00</span></small>
-                                                        </div>
-                                                        <div class="col-md-4 mb-3">
-                                                            <label for="status" class="form-label">Status</label>
-                                                            <select class="form-select" id="status">
-                                                                <option value="ABERTA">Pendente</option>
-                                                                <option value="FECHADA">Finalizado</option>
-                                                                <option value="CANCELADA">Cancelado</option>
-                                                            </select>
-                                                        </div>
                         </div>
 
                         <div class="mb-3">
@@ -198,7 +196,14 @@
                             <div class="row">
                                                             <div class="col-md-4 mb-3">
                                                                 <label for="item_produto_busca" class="form-label">Buscar produto</label>
-                                                                <input type="text" class="form-control mb-2" id="item_produto_busca" placeholder="Buscar por nome ou SKU">
+                                                                <div class="input-group mb-2">
+                                                                    <input type="text" class="form-control" id="item_produto_busca" placeholder="Digite nome ou SKU">
+                                                                    <button class="btn btn-outline-secondary" type="button" id="btnBuscarProduto" title="Buscar produto">
+                                                                        <i class="bi bi-search"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div id="item_produto_resultados" class="row g-3 mb-3"></div>
+                                                                <small class="text-muted d-block mb-2">Pesquise e clique no produto desejado para preencher o item.</small>
                                                                 <label for="item_produto_id" class="form-label">Produto</label>
                                                                 <select class="form-select" id="item_produto_id">
                                                                     <option value="">Selecione...</option>
@@ -248,15 +253,59 @@
                                                                     </tbody>
                                                                 </table>
                                                             </div>
+                                                            <div class="row mt-3">
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label class="form-label">Valor Final</label>
+                                                                    <div class="input-group">
+                                                                        <span class="input-group-text">R$</span>
+                                                                        <input type="text" class="form-control fw-semibold" id="valor_total" readonly value="0,00">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label class="form-label">Pagamento</label>
+                                                                    <div class="input-group">
+                                                                        <select class="form-select" id="tipo_pagamento">
+                                                                            <option value="NAO">Não pago</option>
+                                                                            <option value="PARCIAL">Parcial</option>
+                                                                            <option value="TOTAL">Total</option>
+                                                                        </select>
+                                                                        <span class="input-group-text">R$</span>
+                                                                        <input type="number" step="0.01" class="form-control" id="valor_pago" value="0">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 mb-3">
+                                                                    <label for="status" class="form-label">Status</label>
+                                                                    <select class="form-select" id="status">
+                                                                        <option value="ABERTA">Pendente</option>
+                                                                        <option value="FECHADA">Finalizado</option>
+                                                                        <option value="CANCELADA">Cancelado</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
                                                             <div class="row mt-2">
-                                                                <div class="col-md-4">
-                                                                    <div class="alert alert-secondary py-2 mb-2"><strong>Peças:</strong> <span id="resumo-pecas">R$ 0,00</span></div>
+                                                                <div class="col-md-3">
+                                                                    <div class="alert alert-secondary py-3 mb-2">
+                                                                        <strong>Peças:</strong>
+                                                                        <div class="fs-5 fw-semibold mt-1" id="resumo-pecas">R$ 0,00</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-md-4">
-                                                                    <div class="alert alert-secondary py-2 mb-2"><strong>Mão de obra:</strong> <span id="resumo-mao-obra">R$ 0,00</span></div>
+                                                                <div class="col-md-3">
+                                                                    <div class="alert alert-secondary py-3 mb-2">
+                                                                        <strong>Mão de obra:</strong>
+                                                                        <div class="fs-5 fw-semibold mt-1" id="resumo-mao-obra">R$ 0,00</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-md-4">
-                                                                    <div class="alert alert-primary py-2 mb-2"><strong>Total:</strong> <span id="resumo-total">R$ 0,00</span></div>
+                                                                <div class="col-md-3">
+                                                                    <div class="alert alert-primary py-3 mb-2">
+                                                                        <strong>Total:</strong>
+                                                                        <div class="fs-5 fw-semibold mt-1" id="resumo-total">R$ 0,00</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div id="resumo-saldo-devedor-card" class="alert alert-warning py-3 mb-2">
+                                                                        <strong>Total devido:</strong>
+                                                                        <div class="fs-5 fw-semibold mt-1" id="resumo-saldo-devedor">R$ 0,00</div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                         </div>
@@ -366,6 +415,14 @@
                         document.getElementById('btnSalvarOrdem').addEventListener('click', salvarOrdemServico);
             document.getElementById('item_produto_id').addEventListener('change', atualizarProdutoItem);
             document.getElementById('item_produto_busca').addEventListener('input', debounce(filtrarProdutosOrdem, 200));
+            document.getElementById('btnBuscarProduto').addEventListener('click', buscarProdutoOrdem);
+            document.getElementById('item_produto_busca').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    buscarProdutoOrdem();
+                }
+            });
+            document.getElementById('item_produto_busca').addEventListener('change', buscarProdutoOrdem);
             document.getElementById('item_quantidade').addEventListener('input', atualizarSubtotalItem);
             document.getElementById('item_valor_unitario').addEventListener('input', atualizarSubtotalItem);
             document.getElementById('modalOrdemServico').addEventListener('hidden.bs.modal', limparFormulario);
@@ -434,6 +491,9 @@
                         }
 
         function normalizarTexto(texto = '') {
+            if (texto === null || texto === undefined) {
+                texto = '';
+            }
             return texto
                 .toString()
                 .normalize('NFD')
@@ -443,27 +503,88 @@
 
         function filtrarProdutosOrdem() {
             const filtro = document.getElementById('item_produto_busca').value.trim();
-            atualizarListaProdutosOrdem(filtro);
+            return atualizarListaProdutosOrdem(filtro);
+        }
+
+        async function buscarProdutoOrdem() {
+            if (!produtosOrdem || produtosOrdem.length === 0) {
+                await carregarProdutosOrdem();
+            }
+            const filtro = document.getElementById('item_produto_busca').value.trim();
+            const resultados = atualizarListaProdutosOrdem(filtro);
+            const select = document.getElementById('item_produto_id');
+
+            if (resultados.length === 1) {
+                select.value = resultados[0].id;
+                atualizarProdutoItem();
+                return;
+            }
+
+            select.value = '';
+        }
+
+        function selecionarProdutoOrdem(produtoId) {
+            document.getElementById('item_produto_id').value = produtoId;
+            atualizarProdutoItem();
+            document.getElementById('item_produto_busca').value = '';
+            atualizarListaProdutosOrdem('');
         }
 
         function atualizarListaProdutosOrdem(filtro = '') {
             const select = document.getElementById('item_produto_id');
+            const resultadosContainer = document.getElementById('item_produto_resultados');
             select.innerHTML = '<option value="">Selecione...</option>';
+            resultadosContainer.innerHTML = '';
             const textoFiltro = normalizarTexto(filtro);
-            produtosOrdem
-                .filter(produto => {
-                    if (!textoFiltro) return true;
-                    const nome = normalizarTexto(produto.nome);
-                    const sku = normalizarTexto(produto.sku);
-                    const descricao = normalizarTexto(produto.descricao);
-                    return nome.includes(textoFiltro) || sku.includes(textoFiltro) || descricao.includes(textoFiltro);
-                })
-                .forEach(produto => {
-                    const option = document.createElement('option');
-                    option.value = produto.id;
-                    option.textContent = `${produto.nome} (SKU: ${produto.sku || '-'})`;
-                    select.appendChild(option);
-                });
+
+            const produtosFiltrados = produtosOrdem.filter(produto => {
+                const nome = normalizarTexto(produto.nome);
+                const sku = normalizarTexto(produto.sku);
+                const descricao = normalizarTexto(produto.descricao);
+                if (!textoFiltro) return false;
+                return nome.includes(textoFiltro) || sku.includes(textoFiltro) || descricao.includes(textoFiltro);
+            });
+
+            if (produtosFiltrados.length === 0) {
+                if (textoFiltro) {
+                    resultadosContainer.innerHTML = '<div class="col-12"><div class="alert alert-secondary mb-0">Nenhum produto encontrado.</div></div>';
+                }
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.disabled = true;
+                emptyOption.selected = true;
+                emptyOption.textContent = 'Nenhum produto encontrado';
+                select.appendChild(emptyOption);
+                return produtosFiltrados;
+            }
+
+            produtosFiltrados.forEach(produto => {
+                const option = document.createElement('option');
+                option.value = produto.id;
+                option.textContent = `${produto.nome} (SKU: ${produto.sku || '-'})`;
+                select.appendChild(option);
+
+                const itemWrapper = document.createElement('div');
+                itemWrapper.className = 'col-12';
+                itemWrapper.innerHTML = `
+                    <div class="card resultado-produto-card h-100" onclick="selecionarProdutoOrdem(${produto.id})">
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">${produto.nome}</div>
+                                    <div class="small text-muted">SKU: ${produto.sku || '-'}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-semibold">R$ ${formatarMoeda(produto.preco_venda ?? 0)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultadosContainer.appendChild(itemWrapper);
+            });
+
+            return produtosFiltrados;
         }
 
         function atualizarSubtotalItem() {
@@ -492,7 +613,29 @@
             }
 
             const saldo = Math.max(0, valorTotal - valorPago);
-            document.getElementById('saldo_devedor').textContent = `R$ ${saldo.toFixed(2)}`;
+            const saldoDevedorEl = document.getElementById('saldo_devedor');
+            if (saldoDevedorEl) {
+                saldoDevedorEl.textContent = `R$ ${saldo.toFixed(2)}`;
+            }
+
+            const resumoSaldo = document.getElementById('resumo-saldo-devedor');
+            const resumoSaldoCard = document.getElementById('resumo-saldo-devedor-card');
+            const statusAtual = document.getElementById('status')?.value;
+            const estaCancelada = statusAtual === 'CANCELADA';
+
+            if (resumoSaldo) {
+                resumoSaldo.textContent = formatarMoeda(saldo);
+            }
+            if (resumoSaldoCard) {
+                resumoSaldoCard.classList.remove('alert-warning', 'alert-danger', 'alert-success', 'alert-secondary');
+                if (estaCancelada) {
+                    resumoSaldoCard.classList.add('alert-danger');
+                } else if (saldo > 0) {
+                    resumoSaldoCard.classList.add('alert-warning');
+                } else {
+                    resumoSaldoCard.classList.add('alert-success');
+                }
+            }
         }
 
         function inferirTipoPagamento(valorPago, valorTotal) {
@@ -731,8 +874,16 @@
                     return;
                 }
 
-                                tabela.innerHTML = ordens.map(ordem => `
-                    <tr>
+                                tabela.innerHTML = ordens.map(ordem => {
+                    const rowClass = ordem.status === 'FECHADA'
+                        ? 'table-success'
+                        : ordem.status === 'ABERTA'
+                            ? 'table-warning'
+                            : ordem.status === 'CANCELADA'
+                                ? 'table-danger'
+                                : '';
+                    return `
+                    <tr class="${rowClass}">
                         <td>${ordem.id}</td>
                         <td>${ordem.numero}</td>
                         <td>${clientesMap[ordem.cliente_id] || ordem.cliente_id}</td>
@@ -744,7 +895,8 @@
                             <button class="btn btn-sm btn-danger" onclick="cancelarOrdemServico(${ordem.id})" title="Excluir ordem"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
             } catch (error) {
                 mostrarAlerta('Erro ao carregar ordens: ' + error.message, 'danger');
             }
@@ -830,14 +982,20 @@
             }
 
             const totalOrdem = calcularTotalOrdem();
-            const valorPago = Number(document.getElementById('valor_pago').value) || 0;
+            let valorPago = Number(document.getElementById('valor_pago').value) || 0;
+            const tipoPagamento = document.getElementById('tipo_pagamento').value || 'NAO';
+            const statusSelecionado = mapearStatusParaBackend(document.getElementById('status').value || 'ABERTA');
+            const statusFinal = determinarStatusPeloPagamento(statusSelecionado, tipoPagamento, valorPago, totalOrdem);
+            if (tipoPagamento === 'TOTAL') {
+                valorPago = totalOrdem;
+            }
             const dados = {
                             cliente_id: parseInt(document.getElementById('cliente_id').value),
                             descricao: document.getElementById('descricao').value,
                             tecnico_responsavel: document.getElementById('tecnico_responsavel').value || null,
                             data_prevista_conclusao: document.getElementById('data_prevista_conclusao').value || null,
                             observacoes: document.getElementById('observacoes').value || null,
-                            status: mapearStatusParaBackend(document.getElementById('status').value || 'ABERTA'),
+                            status: statusFinal,
                             valor_final: totalOrdem,
                             valor_pago: valorPago,
                         };
@@ -956,9 +1114,31 @@
                 FECHADA: 'success',
                 CANCELADA: 'danger',
             };
-            const texto = status === 'FECHADA' ? 'Finalizada' : (status || '').replace('_', ' ');
+            const texto = status === 'FECHADA'
+                ? 'Finalizada'
+                : status === 'ABERTA'
+                    ? 'Pendente'
+                    : status === 'CANCELADA'
+                        ? 'Cancelada'
+                        : (status || '').replace('_', ' ');
             const classe = map[status] || 'secondary';
             return `<span class="badge bg-${classe}">${texto}</span>`;
+        }
+
+        function determinarStatusPeloPagamento(statusSelecionado, tipoPagamento, valorPago, valorTotal) {
+            if (statusSelecionado === 'CANCELADA') {
+                return 'CANCELADA';
+            }
+            if (tipoPagamento === 'TOTAL') {
+                return 'FECHADA';
+            }
+            if (tipoPagamento === 'PARCIAL') {
+                return 'ABERTA';
+            }
+            if (tipoPagamento === 'NAO') {
+                return 'ABERTA';
+            }
+            return valorTotal > 0 && valorPago >= valorTotal ? 'FECHADA' : 'ABERTA';
         }
 
         function atualizarResumoItens() {
