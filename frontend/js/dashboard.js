@@ -1,27 +1,17 @@
 import {
     getClientes,
     getOrdensServico,
-    getOrdensServicoRange,
     getRelatorioEstoque,
 } from './api.module.js';
-import { formatarMoeda, mostrarAlerta } from './utils.js';
+import { formatarMoeda, mostrarAlerta, filtrarOSFinalizadasNoDia, calcularFaturamentoMes } from './utils.js';
 
-const API_HEALTH_URL = 'http://localhost:8000/health';
-
-function criarDataISO(data) {
-    return data.toISOString();
-}
+const API_HEALTH_URL = '/health';
 
 function obterInicioDoMes() {
     const hoje = new Date();
     return new Date(hoje.getFullYear(), hoje.getMonth(), 1, 0, 0, 0, 0);
 }
 
-function obterFinalDoDia(data) {
-    const fim = new Date(data);
-    fim.setHours(23, 59, 59, 999);
-    return fim;
-}
 
 function criarLinhaCliente(cliente) {
     return `
@@ -43,35 +33,32 @@ export async function carregarDashboard() {
     const servicosHoje = document.getElementById('dashboard-services-today');
     const clientesRecentes = document.getElementById('dashboard-clients-list');
 
-    try {
-        const hoje = new Date();
-        const inicioMes = criarDataISO(obterInicioDoMes());
-        const fimMes = criarDataISO(obterFinalDoDia(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0)));
-        const inicioHoje = criarDataISO(new Date(hoje.setHours(0, 0, 0, 0)));
-        const fimHoje = criarDataISO(obterFinalDoDia(new Date()));
-
-        const [healthResponse, ordensAbertasData, clientesData, estoqueData, ordensHojeData, faturamentoData] =
+        try {
+        const [healthResponse, ordensAbertasData, ordensFechadasData, clientesData, estoqueData] =
             await Promise.all([
                 fetch(API_HEALTH_URL),
                 getOrdensServico(0, 1000, 'ABERTA'),
+                getOrdensServico(0, 1000, 'FECHADA'),
                 getClientes(0, 5),
                 getRelatorioEstoque(),
-                getOrdensServicoRange({ skip: 0, limit: 1000, dataInicio: inicioHoje, dataFim: fimHoje }),
-                getOrdensServicoRange({ skip: 0, limit: 1000, dataInicio: inicioMes, dataFim: fimMes }),
             ]);
+
 
         statusCard.innerHTML = healthResponse.ok
             ? '<span class="badge bg-success">✓ API conectada</span>'
             : '<span class="badge bg-danger">✗ API indisponível</span>';
 
-        osAbertas.textContent = ordensAbertasData.length;
+                osAbertas.textContent = ordensAbertasData.length;
         estoqueBaixo.textContent = estoqueData.produtos_com_estoque_baixo || 0;
-        servicosHoje.textContent = ordensHojeData.length;
 
-        const faturamentoTotal = (faturamentoData || []).reduce((total, ordem) => {
-            return total + (ordem.valor_final || 0);
-        }, 0);
+        // Ordens finalizadas hoje (status FECHADA com data_conclusao hoje)
+        const finalizadasHoje = filtrarOSFinalizadasNoDia(ordensFechadasData, new Date());
+        servicosHoje.textContent = finalizadasHoje.length;
+
+        // Faturamento do mês: soma de valor_final das OS FECHADA concluídas no mês corrente
+        const faturamentoTotal = calcularFaturamentoMes(ordensFechadasData, new Date());
         faturamento.textContent = formatarMoeda(faturamentoTotal);
+
 
         clientesRecentes.innerHTML = clientesData.length
             ? clientesData.map(criarLinhaCliente).join('')

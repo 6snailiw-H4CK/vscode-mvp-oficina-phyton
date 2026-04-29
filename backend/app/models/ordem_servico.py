@@ -17,7 +17,7 @@ class StatusOS(str, enum.Enum):
 class OrdemServico(Base):
     """Tabela de Ordens de Serviço"""
     __tablename__ = "ordens_servico"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     numero = Column(String(20), unique=True, nullable=False, index=True)
     cliente_id = Column(Integer, ForeignKey("clientes.id"), nullable=False)
@@ -29,6 +29,7 @@ class OrdemServico(Base):
     data_conclusao = Column(DateTime, nullable=True)
     valor_estimado = Column(Float, nullable=True)
     valor_final = Column(Float, nullable=True)
+    valor_pago = Column(Float, nullable=True)
     observacoes = Column(Text, nullable=True)
     data_cadastro = Column(DateTime, default=datetime.utcnow)
     data_atualizacao = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -44,7 +45,7 @@ class OrdemServico(Base):
 class OrdemServicoItem(Base):
     """Tabela de itens de Ordem de Serviço"""
     __tablename__ = "ordens_servico_itens"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     ordem_servico_id = Column(Integer, ForeignKey("ordens_servico.id"), nullable=False)
     produto_id = Column(Integer, ForeignKey("produtos.id"), nullable=True)

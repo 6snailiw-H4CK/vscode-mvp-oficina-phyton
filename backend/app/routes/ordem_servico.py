@@ -9,13 +9,15 @@ from app.database import get_db
 from app.models.ordem_servico import OrdemServico, OrdemServicoItem, StatusOS
 from app.models.cliente import Cliente
 from app.models.produto import Produto
+from app.models.movimentacao_estoque import MovimentacaoEstoque, TipoMovimentacao
 from app.schemas.ordem_servico import (
-    OrdemServicoCreate, 
-    OrdemServicoUpdate, 
+    OrdemServicoCreate,
+    OrdemServicoUpdate,
     OrdemServicoResponse,
     OrdemServicoItemCreate,
+    OrdemServicoItemUpdate,
     OrdemServicoItemResponse,
-    StatusOSEnum
+    StatusOSEnum,
 )
 
 router = APIRouter(prefix="/ordens-servico", tags=["Ordem de Serviço"])
@@ -151,37 +153,204 @@ def atualizar_ordem_servico(
     os_update: OrdemServicoUpdate,
     db: Session = Depends(get_db)
 ):
-    """Atualiza uma OS existente"""
+    """Atualiza uma OS existente e, se finalizada, realiza baixa de estoque.
+    Regra:
+    - Ao transitar de status != FECHADA para FECHADA: validar estoque, lançar saídas e recalcular valor_final.
+    - Não permitir estoque negativo.
+    - Operação atômica (transação).
+    """
     db_os = db.query(OrdemServico).filter(OrdemServico.id == os_id).first()
     if not db_os:
         raise HTTPException(status_code=404, detail="Ordem de serviço não encontrada")
-    
-    update_data = os_update.model_dump(exclude_unset=True)
-    
-    # Se está sendo fechada, registra data de conclusão
-    if update_data.get("status") == StatusOSEnum.FECHADA and not update_data.get("data_conclusao"):
-        update_data["data_conclusao"] = datetime.utcnow()
 
+    prev_status = db_os.status
+    update_data = os_update.model_dump(exclude_unset=True)
+
+    # Preparar novo status (se informado)
+    is_finalizing = False
     if update_data.get("status") is not None:
-        update_data["status"] = StatusOS(update_data["status"])
-    
+        # Normalizar status recebido (string ou Enum do schema) para o Enum do modelo
+        raw_status = update_data["status"]
+        if isinstance(raw_status, str):
+            novo_status = StatusOS(raw_status)
+        else:
+            # Pode ser um Enum do Pydantic; usar o .value se existir
+            valor = getattr(raw_status, "value", raw_status)
+            novo_status = StatusOS(valor)
+
+        is_finalizing = prev_status != StatusOS.FECHADA and novo_status == StatusOS.FECHADA
+        update_data["status"] = novo_status
+        if is_finalizing and not update_data.get("data_conclusao"):
+            update_data["data_conclusao"] = datetime.utcnow()
+
+    # Validar cliente se cliente_id informado
+    if update_data.get("cliente_id") is not None:
+        novo_cliente = db.query(Cliente).filter(Cliente.id == update_data["cliente_id"]).first()
+        if not novo_cliente:
+            raise HTTPException(status_code=404, detail="Cliente não encontrado")
+
+    # Aplicar demais campos na OS (sem commit ainda)
     for field, value in update_data.items():
         setattr(db_os, field, value)
-    
-    db.commit()
-    db.refresh(db_os)
+
+
+    # Se vai finalizar, validar e dar baixa de estoque numa transação
+    if is_finalizing:
+        try:
+            # Recarregar itens atuais
+            itens = db.query(OrdemServicoItem).filter(OrdemServicoItem.ordem_servico_id == db_os.id).all()
+            if not itens:
+                # Permitir OS sem itens finalizar? Sim, baixa de estoque não necessária
+                pass
+
+            # Evitar baixa duplicada: verificar movimentações com observação da OS
+            ja_baixou = (
+                db.query(MovimentacaoEstoque.id)
+                .filter(MovimentacaoEstoque.observacao.ilike(f"%OS {db_os.numero}%"))
+                .first()
+                is not None
+            )
+            if ja_baixou:
+                # Já houve baixa associada a esta OS. Não baixar novamente.
+                is_finalizing = False
+            else:
+                # Validar estoque por item de produto
+                insuficientes = []
+                for item in itens:
+                    if item.produto_id is None:
+                        continue
+                    produto = db.query(Produto).filter(Produto.id == item.produto_id).with_for_update().first()
+                    if not produto:
+                        insuficientes.append({"produto_id": item.produto_id, "motivo": "Produto inexistente"})
+                        continue
+                    if (produto.quantidade_atual or 0) < item.quantidade:
+                        insuficientes.append({"produto_id": item.produto_id, "disponivel": produto.quantidade_atual, "necessario": item.quantidade})
+                if insuficientes:
+                    raise HTTPException(status_code=400, detail={"erro": "Estoque insuficiente", "itens": insuficientes})
+
+                # Efetivar baixas e registrar movimentações
+                for item in itens:
+                    if item.produto_id is None:
+                        continue
+                    produto = db.query(Produto).filter(Produto.id == item.produto_id).with_for_update().first()
+                    produto.quantidade_atual = int((produto.quantidade_atual or 0) - item.quantidade)
+                    mov = MovimentacaoEstoque(
+                        produto_id=item.produto_id,
+                        tipo=TipoMovimentacao.SAIDA,
+                        quantidade=item.quantidade,
+                        motivo="USO_OS",
+                        observacao=f"OS {db_os.numero}"
+                    )
+                    db.add(mov)
+
+            # Recalcular valor_final = soma de subtotais (mão de obra + peças)
+            total = db.query(func.coalesce(func.sum(OrdemServicoItem.subtotal), 0.0)).filter(
+                OrdemServicoItem.ordem_servico_id == db_os.id
+            ).scalar() or 0.0
+            db_os.valor_final = float(total)
+
+            db.commit()
+            db.refresh(db_os)
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Falha ao finalizar OS: {e}")
+    else:
+        # Atualização comum: apenas garantir valor_final consistente se não informado
+        try:
+            if "valor_final" not in update_data:
+                total = db.query(func.coalesce(func.sum(OrdemServicoItem.subtotal), 0.0)).filter(
+                    OrdemServicoItem.ordem_servico_id == db_os.id
+                ).scalar() or 0.0
+                db_os.valor_final = float(total)
+            db.commit()
+            db.refresh(db_os)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Falha ao atualizar OS: {e}")
+
     return db_os
 
 
 @router.delete("/{os_id}", status_code=204)
-def cancelar_ordem_servico(os_id: int, db: Session = Depends(get_db)):
-    """Cancela uma OS"""
+def deletar_ordem_servico(os_id: int, db: Session = Depends(get_db)):
+    """Exclui uma OS e seus itens"""
     db_os = db.query(OrdemServico).filter(OrdemServico.id == os_id).first()
     if not db_os:
         raise HTTPException(status_code=404, detail="Ordem de serviço não encontrada")
-    
-    db_os.status = StatusOS.CANCELADA
+    db.delete(db_os)
     db.commit()
+
+
+@router.put("/{os_id}/itens/{item_id}", response_model=OrdemServicoItemResponse)
+def atualizar_item_os(
+    os_id: int,
+    item_id: int,
+    item_update: OrdemServicoItemUpdate,
+    db: Session = Depends(get_db)
+):
+    """Atualiza um item já adicionado a uma OS"""
+    db_os = db.query(OrdemServico).filter(OrdemServico.id == os_id).first()
+    if not db_os:
+        raise HTTPException(status_code=404, detail="Ordem de serviço não encontrada")
+
+    item = db.query(OrdemServicoItem).filter(
+        OrdemServicoItem.id == item_id,
+        OrdemServicoItem.ordem_servico_id == os_id
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item da ordem de serviço não encontrado")
+
+    update_data = item_update.model_dump(exclude_unset=True)
+    if update_data.get("produto_id") is not None:
+        produto = db.query(Produto).filter(Produto.id == update_data["produto_id"]).first()
+        if not produto:
+            raise HTTPException(status_code=404, detail="Produto não encontrado")
+
+    for field, value in update_data.items():
+        setattr(item, field, value)
+
+    if "subtotal" not in update_data and ("quantidade" in update_data or "valor_unitario" in update_data):
+        item.subtotal = float((item.quantidade or 0) * (item.valor_unitario or 0))
+
+    db.commit()
+    db.refresh(item)
+
+    total = db.query(func.coalesce(func.sum(OrdemServicoItem.subtotal), 0.0)).filter(
+        OrdemServicoItem.ordem_servico_id == os_id
+    ).scalar() or 0.0
+    db_os.valor_final = float(total)
+    db.commit()
+    db.refresh(db_os)
+
+    return item
+
+
+@router.delete("/{os_id}/itens/{item_id}", status_code=204)
+def deletar_item_os(os_id: int, item_id: int, db: Session = Depends(get_db)):
+    """Remove um item de uma OS"""
+    db_os = db.query(OrdemServico).filter(OrdemServico.id == os_id).first()
+    if not db_os:
+        raise HTTPException(status_code=404, detail="Ordem de serviço não encontrada")
+
+    item = db.query(OrdemServicoItem).filter(
+        OrdemServicoItem.id == item_id,
+        OrdemServicoItem.ordem_servico_id == os_id
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item da ordem de serviço não encontrado")
+
+    db.delete(item)
+    db.commit()
+
+    total = db.query(func.coalesce(func.sum(OrdemServicoItem.subtotal), 0.0)).filter(
+        OrdemServicoItem.ordem_servico_id == os_id
+    ).scalar() or 0.0
+    db_os.valor_final = float(total)
+    db.commit()
+    db.refresh(db_os)
 
 
 @router.post("/{os_id}/itens", response_model=OrdemServicoItemResponse, status_code=201)

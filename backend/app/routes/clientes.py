@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.models.cliente import Cliente
-from app.models.ordem_servico import OrdemServico
 from app.schemas.cliente import ClienteCreate, ClienteUpdate, ClienteResponse
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
@@ -74,20 +73,10 @@ def atualizar_cliente(
 
 @router.delete("/{cliente_id}", status_code=204)
 def deletar_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    """Deleta permanentemente um cliente"""
+    """Desativa um cliente (soft delete)"""
     db_cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
     if not db_cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
 
-    ordem_vinculada = db.query(OrdemServico).filter(OrdemServico.cliente_id == cliente_id).first()
-    if ordem_vinculada:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Cliente vinculado a ordens de serviço. Para preservar histórico, "
-                "não exclua o cliente diretamente. Revise as ordens antes de remover."
-            )
-        )
-
-    db.delete(db_cliente)
+    db_cliente.ativo = False
     db.commit()

@@ -45,8 +45,11 @@
                 <button class="btn btn-outline-secondary" onclick="carregarOrdensServico()">
                     <i class="bi bi-arrow-clockwise"></i> Atualizar
                 </button>
-                <button class="btn btn-outline-secondary" onclick="filtrarOrdens()">
+                                <button class="btn btn-outline-secondary" onclick="filtrarOrdens()">
                     <i class="bi bi-funnel"></i> Filtrar
+                </button>
+                <button class="btn btn-outline-light border" onclick="limparFiltros()">
+                    <i class="bi bi-eraser"></i> Limpar filtros
                 </button>
             </div>
         </div>
@@ -73,12 +76,12 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label for="clienteBusca" class="form-label">Cliente</label>
-                <input type="text" id="clienteBusca" class="form-control" placeholder="Nome do cliente" oninput="filtrarOrdens()">
+                                <label for="clienteBusca" class="form-label">Cliente</label>
+                <input type="text" id="clienteBusca" class="form-control" placeholder="Nome do cliente">
             </div>
             <div class="col-md-2">
-                <label for="telefoneBusca" class="form-label">Telefone</label>
-                <input type="text" id="telefoneBusca" class="form-control" placeholder="Telefone" oninput="filtrarOrdens()">
+                                <label for="telefoneBusca" class="form-label">Telefone</label>
+                <input type="text" id="telefoneBusca" class="form-control" placeholder="Telefone">
             </div>
             <div class="col-md-2">
                 <label for="dataInicio" class="form-label">Data início</label>
@@ -132,9 +135,12 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="cliente_id" class="form-label">Cliente *</label>
-                                <select class="form-select" id="cliente_id" required>
-                                    <option value="">Selecione...</option>
-                                </select>
+                                                                <select class="form-select" id="cliente_id" required>
+                                                                    <option value="">Selecione...</option>
+                                                                </select>
+                                                                <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="abrirCadastroRapidoCliente()">
+                                                                    <i class="bi bi-plus"></i> Cliente rápido
+                                                                </button>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="tecnico_responsavel" class="form-label">Técnico Responsável</label>
@@ -153,21 +159,33 @@
                                 <input type="datetime-local" class="form-control" id="data_prevista_conclusao">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Valor Final</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">R$</span>
-                                    <input type="text" class="form-control fw-semibold" id="valor_total" readonly value="0,00">
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="status" class="form-label">Status</label>
-                                <select class="form-select" id="status">
-                                    <option value="ABERTA">ABERTA</option>
-                                    <option value="EM_ANDAMENTO">EM ANDAMENTO</option>
-                                    <option value="FECHADA">Finalizada</option>
-                                    <option value="CANCELADA">CANCELADA</option>
-                                </select>
-                            </div>
+                                                            <label class="form-label">Valor Final</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text">R$</span>
+                                                                <input type="text" class="form-control fw-semibold" id="valor_total" readonly value="0,00">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Pagamento</label>
+                                                            <div class="input-group">
+                                                                <select class="form-select" id="tipo_pagamento">
+                                                                    <option value="NAO">Não pago</option>
+                                                                    <option value="PARCIAL">Parcial</option>
+                                                                    <option value="TOTAL">Total</option>
+                                                                </select>
+                                                                <span class="input-group-text">R$</span>
+                                                                <input type="number" step="0.01" class="form-control" id="valor_pago" value="0">
+                                                            </div>
+                                                            <small class="text-muted">Saldo: <span id="saldo_devedor">R$ 0,00</span></small>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label for="status" class="form-label">Status</label>
+                                                            <select class="form-select" id="status">
+                                                                <option value="ABERTA">Pendente</option>
+                                                                <option value="FECHADA">Finalizado</option>
+                                                                <option value="CANCELADA">Cancelado</option>
+                                                            </select>
+                                                        </div>
                         </div>
 
                         <div class="mb-3">
@@ -178,46 +196,70 @@
                         <div class="mb-4">
                             <h5>Itens da Ordem</h5>
                             <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="item_produto_id" class="form-label">Produto</label>
-                                    <select class="form-select" id="item_produto_id">
-                                        <option value="">Selecione...</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label for="item_quantidade" class="form-label">Quantidade</label>
-                                    <input type="number" class="form-control" id="item_quantidade" min="1" value="1">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label for="item_valor_unitario" class="form-label">Valor Unitário</label>
-                                    <input type="number" class="form-control" id="item_valor_unitario" step="0.01">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label for="item_subtotal" class="form-label">Subtotal</label>
-                                    <input type="text" class="form-control" id="item_subtotal" readonly>
-                                </div>
-                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="item_produto_id" class="form-label">Produto</label>
+                                                                                                                                <select class="form-select" id="item_produto_id">
+                                                                                                                                    <option value="">Selecione...</option>
+                                                                                                                                </select>
+                                                                                                                                <div class="d-flex gap-2 mt-2 align-items-center">
+                                                                                                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="abrirCadastroRapidoProduto()">
+                                                                                                                                        <i class="bi bi-plus"></i> Produto rápido
+                                                                                                                                    </button>
+                                                                                                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="abrirReposicaoEstoque()">
+                                                                                                                                        <i class="bi bi-box-arrow-in-down"></i> Repor estoque
+                                                                                                                                    </button>
+                                                                                                                                    <small class="text-muted ms-2" id="info_estoque_disponivel"></small>
+                                                                                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label for="item_descricao" class="form-label">Descrição do item (serviço)</label>
+                                                                <input type="text" class="form-control" id="item_descricao" placeholder="Ex: Mão de obra">
+                                                            </div>
+                                                            <div class="col-md-2 mb-3">
+                                                                <label for="item_quantidade" class="form-label">Quantidade</label>
+                                                                <input type="number" class="form-control" id="item_quantidade" min="1" value="1">
+                                                            </div>
+                                                            <div class="col-md-1 mb-3">
+                                                                <label for="item_valor_unitario" class="form-label">Valor</label>
+                                                                <input type="number" class="form-control" id="item_valor_unitario" step="0.01">
+                                                            </div>
+                                                            <div class="col-md-1 mb-3">
+                                                                <label for="item_subtotal" class="form-label">Subtotal</label>
+                                                                <input type="text" class="form-control" id="item_subtotal" readonly>
+                                                            </div>
+                                                        </div>
                             <div class="mb-3">
-                                <button type="button" class="btn btn-outline-primary" onclick="adicionarItemOrdem()">
+                                <button type="button" class="btn btn-outline-primary" id="btnAdicionarItem" onclick="adicionarItemOrdem()">
                                     <i class="bi bi-plus-lg"></i> Adicionar Item
                                 </button>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered" id="tabelaItensOrdem">
-                                    <thead>
-                                        <tr>
-                                            <th>Produto</th>
-                                            <th>Qtd</th>
-                                            <th>Valor Unit.</th>
-                                            <th>Subtotal</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><td colspan="5" class="text-center text-muted">Nenhum item adicionado</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Item</th>
+                                                                            <th>Qtd</th>
+                                                                            <th>Valor Unit.</th>
+                                                                            <th>Subtotal</th>
+                                                                            <th>Ações</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr><td colspan="5" class="text-center text-muted">Nenhum item adicionado</td></tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="row mt-2">
+                                                                <div class="col-md-4">
+                                                                    <div class="alert alert-secondary py-2 mb-2"><strong>Peças:</strong> <span id="resumo-pecas">R$ 0,00</span></div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="alert alert-secondary py-2 mb-2"><strong>Mão de obra:</strong> <span id="resumo-mao-obra">R$ 0,00</span></div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="alert alert-primary py-2 mb-2"><strong>Total:</strong> <span id="resumo-total">R$ 0,00</span></div>
+                                                                </div>
+                                                            </div>
                         </div>
                     </form>
                 </div>
@@ -229,9 +271,73 @@
         </div>
     </div>
 
-    <footer class="bg-light text-center py-4 mt-5 border-top">
+        <footer class="bg-light text-center py-4 mt-5 border-top">
         <p class="text-muted mb-0">Sistema Simples v1.0.0 © 2026</p>
     </footer>
+
+    <!-- Modal Cadastro Rápido de Cliente -->
+    <div class="modal fade" id="modalClienteRapido" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Cliente Rápido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="cr_nome">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="cr_telefone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="cr_email">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarClienteRapido()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cadastro Rápido de Produto -->
+    <div class="modal fade" id="modalProdutoRapido" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Produto Rápido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="pr_nome">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Preço de venda *</label>
+                            <input type="number" step="0.01" class="form-control" id="pr_preco_venda">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control" id="pr_sku">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarProdutoRapido()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
@@ -242,19 +348,36 @@
         let produtosOrdem = [];
         let itensOrdem = [];
         let itensOSAtuais = [];
+        let itemEmEdicaoIndex = null;
+                let itemEmEdicaoPersistido = null;
+                let modalClienteRapido;
+                let modalProdutoRapido;
+                let modalReposicao;
+                let repProdutoSelecionado = null;
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            modalOrdem = new bootstrap.Modal(document.getElementById('modalOrdemServico'));
+
+                document.addEventListener('DOMContentLoaded', async function() {
+                        modalOrdem = new bootstrap.Modal(document.getElementById('modalOrdemServico'));
+            modalClienteRapido = new bootstrap.Modal(document.getElementById('modalClienteRapido'));
+            modalProdutoRapido = new bootstrap.Modal(document.getElementById('modalProdutoRapido'));
             await carregarClientes();
             await carregarProdutosOrdem();
             document.getElementById('filtroPeriodo').value = 'hoje';
             aplicarFiltroPeriodo();
-            document.getElementById('btnSalvarOrdem').addEventListener('click', salvarOrdemServico);
+                        document.getElementById('btnSalvarOrdem').addEventListener('click', salvarOrdemServico);
             document.getElementById('item_produto_id').addEventListener('change', atualizarProdutoItem);
             document.getElementById('item_quantidade').addEventListener('input', atualizarSubtotalItem);
             document.getElementById('item_valor_unitario').addEventListener('input', atualizarSubtotalItem);
             document.getElementById('modalOrdemServico').addEventListener('hidden.bs.modal', limparFormulario);
-        });
+
+                        // Atualizar saldo quando valor_pago ou tipo_pagamento mudar
+                        document.getElementById('tipo_pagamento').addEventListener('change', atualizarSaldo);
+                        document.getElementById('valor_pago').addEventListener('input', atualizarSaldo);
+
+                        // Busca com debounce
+                        document.getElementById('clienteBusca').addEventListener('input', debounce(filtrarOrdens, 300));
+                        document.getElementById('telefoneBusca').addEventListener('input', debounce(filtrarOrdens, 300));
+                    });
 
         async function carregarClientes() {
             try {
@@ -276,7 +399,7 @@
         }
 
         async function carregarProdutosOrdem() {
-            try {
+                        try {
                 const produtos = await apiGet('/produtos?limit=1000&ativo=true');
                 const select = document.getElementById('item_produto_id');
                 select.innerHTML = '<option value="">Selecione...</option>';
@@ -290,48 +413,62 @@
                 });
             } catch (error) {
                 mostrarAlerta('Erro ao carregar produtos para ordem de serviço: ' + error.message, 'danger');
+            } finally {
+                // limpar info de estoque disponível
+                const info = document.getElementById('info_estoque_disponivel');
+                if (info) info.textContent = '';
             }
         }
 
         function atualizarProdutoItem() {
-            const produtoId = parseInt(document.getElementById('item_produto_id').value, 10);
-            const produto = produtosOrdem.find(p => p.id === produtoId);
-            const valorUnitarioInput = document.getElementById('item_valor_unitario');
-            const quantidadeInput = document.getElementById('item_quantidade');
+                            const produtoId = parseInt(document.getElementById('item_produto_id').value, 10);
+                            const produto = produtosOrdem.find(p => p.id === produtoId);
+                            const valorUnitarioInput = document.getElementById('item_valor_unitario');
+                            const quantidadeInput = document.getElementById('item_quantidade');
 
-            if (produto) {
-                valorUnitarioInput.value = produto.preco_venda ?? '';
-                const quantidade = Number(quantidadeInput.value) || 1;
-                document.getElementById('item_subtotal').value = formatarMoeda((produto.preco_venda || 0) * quantidade);
-            } else {
-                valorUnitarioInput.value = '';
-                document.getElementById('item_subtotal').value = '';
-            }
-        }
+                            const info = document.getElementById('info_estoque_disponivel');
+
+                            if (produto) {
+                                valorUnitarioInput.value = produto.preco_venda ?? '';
+                                const quantidade = Number(quantidadeInput.value) || 1;
+                                document.getElementById('item_subtotal').value = formatarMoeda((produto.preco_venda || 0) * quantidade);
+                                document.getElementById('item_descricao').value = produto.nome;
+                                if (info) info.textContent = `Disponível: ${produto.quantidade_atual ?? 0}`;
+                            } else {
+                                valorUnitarioInput.value = '';
+                                document.getElementById('item_subtotal').value = '';
+                                if (info) info.textContent = '';
+                            }
+                        }
 
         function atualizarSubtotalItem() {
-            const quantidade = Number(document.getElementById('item_quantidade').value) || 0;
-            const valorUnitario = Number(document.getElementById('item_valor_unitario').value) || 0;
-            document.getElementById('item_subtotal').value = formatarMoeda(quantidade * valorUnitario);
-        }
+                    const quantidade = Number(document.getElementById('item_quantidade').value) || 0;
+                    const valorUnitario = Number(document.getElementById('item_valor_unitario').value) || 0;
+                    document.getElementById('item_subtotal').value = formatarMoeda(quantidade * valorUnitario);
+                    atualizarSaldo();
+                }
 
         function renderizarItensOrdem() {
             const tbody = document.querySelector('#tabelaItensOrdem tbody');
             if (itensOSAtuais.length === 0 && itensOrdem.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum item adicionado</td></tr>';
+                atualizarResumoItens();
                 return;
             }
 
             const linhas = [];
 
-            itensOSAtuais.forEach(item => {
+                        itensOSAtuais.forEach(item => {
                 linhas.push(`
                     <tr class="table-secondary">
                         <td>${item.descricao || ('Produto ' + item.produto_id)}</td>
                         <td>${item.quantidade}</td>
                         <td>R$ ${Number(item.valor_unitario).toFixed(2)}</td>
                         <td>R$ ${Number(item.subtotal).toFixed(2)}</td>
-                        <td><span class="text-muted">Persistido</span></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-secondary me-1" onclick="editarItemPersistido(${item.id})"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removerItemOSPersistido(${item.id})"><i class="bi bi-trash"></i></button>
+                        </td>
                     </tr>
                 `);
             });
@@ -343,24 +480,29 @@
                         <td>${item.quantidade}</td>
                         <td>R$ ${Number(item.valor_unitario).toFixed(2)}</td>
                         <td>R$ ${Number(item.subtotal).toFixed(2)}</td>
-                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removerItemOrdem(${index})"><i class="bi bi-trash"></i></button></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-secondary me-1" onclick="editarItemNovo(${index})"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removerItemOrdem(${index})"><i class="bi bi-trash"></i></button>
+                        </td>
                     </tr>
                 `);
             });
 
             tbody.innerHTML = linhas.join('');
             atualizarTotalOrdem();
+            atualizarResumoItens();
         }
 
-        function adicionarItemOrdem() {
-            const produtoId = parseInt(document.getElementById('item_produto_id').value, 10);
+        async function adicionarItemOrdem() {
+            const produtoId = parseInt(document.getElementById('item_produto_id').value, 10) || null;
+            const descricaoItem = document.getElementById('item_descricao').value.trim();
             const quantidade = Number(document.getElementById('item_quantidade').value) || 0;
             const valorUnitario = Number(document.getElementById('item_valor_unitario').value) || 0;
             const subtotal = Number((quantidade * valorUnitario).toFixed(2));
             const produto = produtosOrdem.find(p => p.id === produtoId);
 
-            if (!produtoId || !produto) {
-                mostrarAlerta('Selecione um produto válido.', 'warning');
+                        if (!produtoId && (!descricaoItem || !valorUnitario)) {
+                mostrarAlerta('Informe um produto ou preencha descrição e valor para serviço.', 'warning');
                 return;
             }
             if (quantidade <= 0) {
@@ -368,25 +510,146 @@
                 return;
             }
 
-            itensOrdem.push({
-                produto_id: produtoId,
-                descricao: produto.nome,
+            const itemData = {
+                produto_id: produto ? produto.id : null,
+                descricao: produto ? produto.nome : descricaoItem,
                 quantidade,
                 valor_unitario: valorUnitario,
                 subtotal,
-            });
+            };
 
+            if (itemEmEdicaoPersistido) {
+                try {
+                    await atualizarItemOS(ordemEmEdicao, itemEmEdicaoPersistido.id, itemData);
+                    itensOSAtuais = await listarItensOS(ordemEmEdicao);
+                    mostrarAlerta('Item atualizado com sucesso!', 'success');
+                } catch (error) {
+                    mostrarAlerta('Erro ao atualizar item persistido: ' + error.message, 'danger');
+                    return;
+                }
+            } else if (itemEmEdicaoIndex !== null) {
+                itensOrdem[itemEmEdicaoIndex] = itemData;
+                itemEmEdicaoIndex = null;
+            } else {
+                itensOrdem.push(itemData);
+            }
+
+            resetItemForm();
             renderizarItensOrdem();
-            document.getElementById('item_produto_id').value = '';
-            document.getElementById('item_quantidade').value = 1;
-            document.getElementById('item_valor_unitario').value = '';
-            document.getElementById('item_subtotal').value = '';
         }
 
         function removerItemOrdem(index) {
             itensOrdem.splice(index, 1);
             renderizarItensOrdem();
         }
+
+        async function editarItemNovo(index) {
+            const item = itensOrdem[index];
+            if (!item) return;
+
+            itemEmEdicaoIndex = index;
+            itemEmEdicaoPersistido = null;
+            document.getElementById('item_produto_id').value = item.produto_id || '';
+            document.getElementById('item_descricao').value = item.descricao || '';
+            document.getElementById('item_quantidade').value = item.quantidade;
+            document.getElementById('item_valor_unitario').value = item.valor_unitario;
+            document.getElementById('item_subtotal').value = formatarMoeda(item.subtotal);
+            document.getElementById('btnAdicionarItem').innerHTML = '<i class="bi bi-save"></i> Salvar Item';
+        }
+
+        async function editarItemPersistido(itemId) {
+            if (!ordemEmEdicao) return;
+            const item = itensOSAtuais.find(i => i.id === itemId);
+            if (!item) return;
+
+            itemEmEdicaoPersistido = item;
+            itemEmEdicaoIndex = null;
+            document.getElementById('item_produto_id').value = item.produto_id || '';
+            document.getElementById('item_descricao').value = item.descricao || '';
+            document.getElementById('item_quantidade').value = item.quantidade;
+            document.getElementById('item_valor_unitario').value = item.valor_unitario;
+            document.getElementById('item_subtotal').value = formatarMoeda(item.subtotal);
+            document.getElementById('btnAdicionarItem').innerHTML = '<i class="bi bi-save"></i> Salvar Item';
+        }
+
+        async function removerItemOSPersistido(itemId) {
+            if (!ordemEmEdicao) return;
+            if (!confirm('Deseja excluir este item permanentemente?')) {
+                return;
+            }
+
+            try {
+                await deleteItemOS(ordemEmEdicao, itemId);
+                itensOSAtuais = await listarItensOS(ordemEmEdicao);
+                renderizarItensOrdem();
+                mostrarAlerta('Item excluído com sucesso!', 'success');
+            } catch (error) {
+                mostrarAlerta('Erro ao excluir item: ' + error.message, 'danger');
+            }
+        }
+
+        function resetItemForm() {
+            itemEmEdicaoIndex = null;
+            itemEmEdicaoPersistido = null;
+            document.getElementById('item_produto_id').value = '';
+            document.getElementById('item_descricao').value = '';
+            document.getElementById('item_quantidade').value = 1;
+            document.getElementById('item_valor_unitario').value = '';
+            document.getElementById('item_subtotal').value = '';
+                        document.getElementById('btnAdicionarItem').innerHTML = '<i class="bi bi-plus-lg"></i> Adicionar Item';
+        }
+
+        function abrirCadastroRapidoCliente() {
+            document.getElementById('cr_nome').value = '';
+            document.getElementById('cr_telefone').value = '';
+            document.getElementById('cr_email').value = '';
+            modalClienteRapido.show();
+        }
+        async function salvarClienteRapido() {
+            const nome = document.getElementById('cr_nome').value.trim();
+            const telefone = document.getElementById('cr_telefone').value.trim() || null;
+            const email = document.getElementById('cr_email').value.trim() || null;
+            if (!nome) {
+                mostrarAlerta('Informe o nome do cliente.', 'warning');
+                return;
+            }
+            try {
+                const novo = await apiPost('/clientes', { nome, telefone, email });
+                await carregarClientes();
+                document.getElementById('cliente_id').value = novo.id;
+                modalClienteRapido.hide();
+                mostrarAlerta('Cliente criado e selecionado!', 'success');
+            } catch (e) {
+                mostrarAlerta('Erro ao criar cliente: ' + e.message, 'danger');
+            }
+        }
+
+        function abrirCadastroRapidoProduto() {
+            document.getElementById('pr_nome').value = '';
+            document.getElementById('pr_preco_venda').value = '';
+            document.getElementById('pr_sku').value = '';
+            modalProdutoRapido.show();
+        }
+        async function salvarProdutoRapido() {
+            const nome = document.getElementById('pr_nome').value.trim();
+            const preco_venda = Number(document.getElementById('pr_preco_venda').value);
+            const sku = document.getElementById('pr_sku').value.trim() || null;
+            if (!nome || !preco_venda) {
+                mostrarAlerta('Informe nome e preço de venda do produto.', 'warning');
+                return;
+            }
+            try {
+                const novo = await apiPost('/produtos', { nome, preco_venda, sku, quantidade_atual: 0 });
+                await carregarProdutosOrdem();
+                document.getElementById('item_produto_id').value = novo.id;
+                atualizarProdutoItem();
+                modalProdutoRapido.hide();
+                mostrarAlerta('Produto criado e selecionado!', 'success');
+            } catch (e) {
+                mostrarAlerta('Erro ao criar produto: ' + e.message, 'danger');
+            }
+        }
+
 
         async function carregarOrdensServico() {
             try {
@@ -411,17 +674,17 @@
                     return;
                 }
 
-                tabela.innerHTML = ordens.map(ordem => `
+                                tabela.innerHTML = ordens.map(ordem => `
                     <tr>
                         <td>${ordem.id}</td>
                         <td>${ordem.numero}</td>
                         <td>${clientesMap[ordem.cliente_id] || ordem.cliente_id}</td>
-                        <td><span class="badge bg-${ordem.status === 'CANCELADA' ? 'danger' : ordem.status === 'FECHADA' ? 'success' : 'warning'}">${formatarStatusOrdem(ordem.status)}</span></td>
+                        <td>${criarStatusBadge(ordem.status)}</td>
                         <td>${ordem.data_abertura ? new Date(ordem.data_abertura).toLocaleString('pt-BR') : '-'}</td>
                         <td>${ordem.valor_final ? 'R$ ' + Number(ordem.valor_final).toFixed(2) : '-'}</td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="editarOrdemServico(${ordem.id})"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="cancelarOrdemServico(${ordem.id})"><i class="bi bi-x-circle"></i></button>
+                            <button class="btn btn-sm btn-info" onclick="editarOrdemServico(${ordem.id})" title="Editar ordem"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="cancelarOrdemServico(${ordem.id})" title="Excluir ordem"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 `).join('');
@@ -464,10 +727,7 @@
             carregarOrdensServico();
         }
 
-        function formatarStatusOrdem(status) {
-            if (status === 'FECHADA') return 'Finalizada';
-            return status.replace('_', ' ');
-        }
+        
 
         function calcularTotalOrdem() {
             const totalPersistido = itensOSAtuais.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
@@ -487,7 +747,7 @@
                 document.getElementById('descricao').value = ordem.descricao || '';
                 document.getElementById('tecnico_responsavel').value = ordem.tecnico_responsavel || '';
                 document.getElementById('data_prevista_conclusao').value = ordem.data_prevista_conclusao ? ordem.data_prevista_conclusao.substring(0, 16) : '';
-                document.getElementById('status').value = ordem.status || 'ABERTA';
+                document.getElementById('status').value = mapearStatusParaUI(ordem.status || 'ABERTA');
                 document.getElementById('observacoes').value = ordem.observacoes || '';
 
                 ordemEmEdicao = id;
@@ -495,24 +755,34 @@
                 itensOrdem = [];
                 renderizarItensOrdem();
 
-                document.getElementById('tituloModalOrdem').textContent = 'Editar Ordem de Serviço';
+                                document.getElementById('tituloModalOrdem').textContent = 'Editar Ordem de Serviço';
+                // preenche valor_pago se existir
+                document.getElementById('valor_pago').value = ordem.valor_pago || 0;
+                atualizarSaldo();
                 modalOrdem.show();
             } catch (error) {
                 mostrarAlerta('Erro ao carregar ordem de serviço: ' + error.message, 'danger');
             }
         }
 
-        async function salvarOrdemServico() {
+                async function salvarOrdemServico() {
+            if (itemEmEdicaoPersistido !== null || itemEmEdicaoIndex !== null) {
+                await adicionarItemOrdem();
+            }
+
             const totalOrdem = calcularTotalOrdem();
+            const valorPago = Number(document.getElementById('valor_pago').value) || 0;
             const dados = {
-                cliente_id: parseInt(document.getElementById('cliente_id').value),
-                descricao: document.getElementById('descricao').value,
-                tecnico_responsavel: document.getElementById('tecnico_responsavel').value || null,
-                data_prevista_conclusao: document.getElementById('data_prevista_conclusao').value || null,
-                observacoes: document.getElementById('observacoes').value || null,
-                status: document.getElementById('status').value || 'ABERTA',
-                valor_final: totalOrdem,
-            };
+                            cliente_id: parseInt(document.getElementById('cliente_id').value),
+                            descricao: document.getElementById('descricao').value,
+                            tecnico_responsavel: document.getElementById('tecnico_responsavel').value || null,
+                            data_prevista_conclusao: document.getElementById('data_prevista_conclusao').value || null,
+                            observacoes: document.getElementById('observacoes').value || null,
+                            status: mapearStatusParaBackend(document.getElementById('status').value || 'ABERTA'),
+                            valor_final: totalOrdem,
+                            valor_pago: valorPago,
+                        };
+
 
             try {
                 if (!dados.cliente_id || !dados.descricao) {
@@ -520,20 +790,39 @@
                     return;
                 }
 
-                if (ordemEmEdicao) {
-                    await apiPut(`/ordens-servico/${ordemEmEdicao}`, dados);
-                    if (itensOrdem.length > 0) {
+                                if (ordemEmEdicao) {
+                    const statusFinalizada = dados.status === 'FECHADA';
+                    if (statusFinalizada && itensOrdem.length > 0) {
+                        const dadosSemStatus = { ...dados };
+                        delete dadosSemStatus.status;
+                        await apiPut(`/ordens-servico/${ordemEmEdicao}`, dadosSemStatus);
                         for (const item of itensOrdem) {
                             await adicionarItemOS(ordemEmEdicao, item);
+                        }
+                        await apiPut(`/ordens-servico/${ordemEmEdicao}`, { status: 'FECHADA', valor_pago: dados.valor_pago });
+                    } else {
+                        await apiPut(`/ordens-servico/${ordemEmEdicao}`, dados);
+                        if (itensOrdem.length > 0) {
+                            for (const item of itensOrdem) {
+                                await adicionarItemOS(ordemEmEdicao, item);
+                            }
                         }
                     }
                     mostrarAlerta('Ordem atualizada com sucesso!', 'success');
                 } else {
                     const payload = { ...dados };
+                    const finalizarAposCriar = payload.status === 'FECHADA';
+                    if (finalizarAposCriar) {
+                        payload.status = 'ABERTA';
+                    }
                     if (itensOrdem.length > 0) {
                         payload.itens = itensOrdem;
                     }
-                    await apiPost('/ordens-servico', payload);
+                    const created = await apiPost('/ordens-servico', payload);
+                                        if (finalizarAposCriar) {
+                        await updateOrdemServico(created.id, { status: 'FECHADA', valor_pago: dados.valor_pago });
+                    }
+
                     mostrarAlerta('Ordem de serviço criada com sucesso!', 'success');
                 }
                 modalOrdem.hide();
@@ -546,26 +835,169 @@
         }
 
         async function cancelarOrdemServico(id) {
-            if (!confirm('Deseja cancelar esta ordem de serviço?')) {
+            if (!confirm('Deseja excluir esta ordem de serviço permanentemente?')) {
                 return;
             }
             try {
                 await deleteOrdemServico(id);
-                mostrarAlerta('Ordem cancelada com sucesso!', 'success');
+                mostrarAlerta('Ordem excluída com sucesso!', 'success');
                 carregarOrdensServico();
             } catch (error) {
-                mostrarAlerta('Erro ao cancelar ordem: ' + error.message, 'danger');
+                mostrarAlerta('Erro ao excluir ordem: ' + error.message, 'danger');
             }
         }
 
-        function limparFormulario() {
-            ordemEmEdicao = null;
-            itensOrdem = [];
-            itensOSAtuais = [];
-            document.getElementById('tituloModalOrdem').textContent = 'Nova Ordem de Serviço';
-            document.getElementById('formOrdemServico').reset();
-            renderizarItensOrdem();
+                function limparFormulario() {
+                            ordemEmEdicao = null;
+                            itensOrdem = [];
+                            itensOSAtuais = [];
+                            itemEmEdicaoIndex = null;
+                            itemEmEdicaoPersistido = null;
+                            document.getElementById('tituloModalOrdem').textContent = 'Nova Ordem de Serviço';
+                            document.getElementById('formOrdemServico').reset();
+                            resetItemForm();
+                            renderizarItensOrdem();
+                            atualizarResumoItens();
+                        }
+
+                function limparFiltros() {
+            document.getElementById('filtroPeriodo').value = 'todas';
+            document.getElementById('statusFiltro').value = '';
+            document.getElementById('clienteBusca').value = '';
+            document.getElementById('telefoneBusca').value = '';
+            document.getElementById('dataInicio').value = '';
+            document.getElementById('dataFim').value = '';
+            carregarOrdensServico();
         }
-    </script>
-</body>
-</html>
+
+        // Mapeamento de status profissionais (UI) -> backend e vice-versa
+        function mapearStatusParaBackend(uiStatus) {
+            const mapa = {
+                'ABERTA': 'ABERTA',
+                'EM_ANDAMENTO': 'EM_ANDAMENTO',
+                'FECHADA': 'FECHADA',
+                'CANCELADA': 'CANCELADA',
+            };
+            return mapa[uiStatus] || 'ABERTA';
+        }
+        function mapearStatusParaUI(backendStatus) {
+            const mapa = {
+                'ABERTA': 'ABERTA',
+                'EM_ANDAMENTO': 'EM_ANDAMENTO',
+                'FECHADA': 'FECHADA',
+                'CANCELADA': 'CANCELADA',
+            };
+            return mapa[backendStatus] || 'ABERTA';
+        }
+
+        function criarStatusBadge(status) {
+            const map = {
+                ABERTA: 'warning',
+                EM_ANDAMENTO: 'info',
+                FECHADA: 'success',
+                CANCELADA: 'danger',
+            };
+            const texto = status === 'FECHADA' ? 'Finalizada' : (status || '').replace('_', ' ');
+            const classe = map[status] || 'secondary';
+            return `<span class="badge bg-${classe}">${texto}</span>`;
+        }
+
+        function atualizarResumoItens() {
+                    const todos = [...itensOSAtuais, ...itensOrdem];
+                    const pecas = todos.filter(i => i.produto_id).reduce((s, i) => s + Number(i.subtotal || 0), 0);
+                    const maoObra = todos.filter(i => !i.produto_id).reduce((s, i) => s + Number(i.subtotal || 0), 0);
+                    const total = pecas + maoObra;
+                    document.getElementById('resumo-pecas').textContent = formatarMoeda(pecas);
+                    document.getElementById('resumo-mao-obra').textContent = formatarMoeda(maoObra);
+                    document.getElementById('resumo-total').textContent = formatarMoeda(total);
+                    document.getElementById('valor_total').value = total.toFixed(2);
+                    atualizarSaldo();
+                }
+
+    
+
+            async function abrirReposicaoEstoque() {
+                const produtoId = parseInt(document.getElementById('item_produto_id').value, 10) || null;
+                if (!produtoId) {
+                    mostrarAlerta('Selecione um produto para repor o estoque.', 'warning');
+                    return;
+                }
+                const produto = produtosOrdem.find(p => p.id === produtoId);
+                if (!produto) {
+                    mostrarAlerta('Produto inválido.', 'danger');
+                    return;
+                }
+                repProdutoSelecionado = produto;
+                document.getElementById('rep_produto_nome').value = `${produto.nome} (SKU: ${produto.sku || '-'})`;
+                document.getElementById('rep_estoque_atual').value = produto.quantidade_atual ?? 0;
+                document.getElementById('rep_qtd_adicionar').value = 1;
+                document.getElementById('rep_motivo').value = 'Reposição rápida para OS';
+                modalReposicao.show();
+            }
+
+            async function salvarReposicaoEstoque() {
+                if (!repProdutoSelecionado) return;
+                const qtd = parseInt(document.getElementById('rep_qtd_adicionar').value, 10) || 0;
+                const motivo = document.getElementById('rep_motivo').value.trim() || 'Reposição rápida para OS';
+                if (qtd <= 0) {
+                    mostrarAlerta('Quantidade a adicionar deve ser maior que zero.', 'warning');
+                    return;
+                }
+                try {
+                    await movimentarEstoque({
+                        produto_id: repProdutoSelecionado.id,
+                        tipo: 'ENTRADA',
+                        quantidade: qtd,
+                        motivo,
+                        observacao: 'Reposição pela tela de OS'
+                    });
+                    await carregarProdutosOrdem();
+                    // manter produto selecionado e atualizar info
+                    document.getElementById('item_produto_id').value = repProdutoSelecionado.id;
+                    atualizarProdutoItem();
+                    modalReposicao.hide();
+                    mostrarAlerta('Estoque atualizado com sucesso!', 'success');
+                } catch (e) {
+                    mostrarAlerta('Erro ao repor estoque: ' + e.message, 'danger');
+                }
+            }
+
+            </script>
+
+            <!-- Modal Reposição de Estoque -->
+        <div class="modal fade" id="modalReposicao" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reposição de Estoque</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label">Produto</label>
+                            <input type="text" class="form-control" id="rep_produto_nome" readonly>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Estoque atual</label>
+                                <input type="number" class="form-control" id="rep_estoque_atual" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantidade a adicionar *</label>
+                                <input type="number" min="1" class="form-control" id="rep_qtd_adicionar" value="1">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Motivo</label>
+                            <input type="text" class="form-control" id="rep_motivo" placeholder="Reposição rápida para OS">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="salvarReposicaoEstoque()">Adicionar ao estoque</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>

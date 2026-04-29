@@ -44,12 +44,29 @@ app.include_router(demo.router, prefix=settings.api_prefix)
 
 
 def initialize_database() -> None:
-    """Cria as tabelas no banco de dados se possível."""
+    """Cria as tabelas no banco de dados se possível.
+    Também aplica alterações simples em esquemas para ambientes SQLite (ALTER TABLE add column) quando necessário.
+    """
     try:
         Base.metadata.create_all(bind=engine)
         logger.info("Banco de dados inicializado com sucesso.")
+
+        # Se SQLite, verificar colunas adicionais que possam ter sido adicionadas ao modelo
+        if settings.database_url.startswith("sqlite"):
+            try:
+                with engine.connect() as conn:
+                    # Verifica se coluna valor_pago existe na tabela ordens_servico
+                    res = conn.execute("PRAGMA table_info('ordens_servico')").fetchall()
+                    cols = [r[1] for r in res]
+                    if 'valor_pago' not in cols:
+                        logger.info("Adicionando coluna 'valor_pago' em ordens_servico (SQLite)")
+                        conn.execute("ALTER TABLE ordens_servico ADD COLUMN valor_pago FLOAT")
+            except Exception as e:
+                logger.warning(f"Falha ao ajustar esquema SQLite automaticamente: {e}")
+
     except OperationalError as e:
         logger.warning(f"Não foi possível inicializar o banco de dados: {e}")
+
 
 
 def seed_demo_data() -> None:
@@ -121,7 +138,6 @@ def on_startup() -> None:
 
 # Servir arquivos estáticos (CSS, JS)
 try:
-    import os
     frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
     if os.path.exists(frontend_path):
         app.mount("/css", StaticFiles(directory=os.path.join(frontend_path, "css")), name="css")

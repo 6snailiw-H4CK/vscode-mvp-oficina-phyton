@@ -7,14 +7,23 @@ from app.config import settings
 # Database URL
 SQLALCHEMY_DATABASE_URL = settings.database_url
 
-# Create engine
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=settings.debug,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
-)
+# Create engine (ajuste seguro para SQLite vs outros SGBDs)
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        echo=settings.debug,
+        connect_args={"check_same_thread": False},  # evitar erro de threads no SQLite com FastAPI
+        pool_pre_ping=True,
+    )
+else:
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        echo=settings.debug,
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+    )
+
 
 # Create session factory
 SessionLocal = sessionmaker(

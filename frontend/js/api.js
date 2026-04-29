@@ -1,6 +1,6 @@
 /* API Helper Functions */
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = '/api/v1';
 
 async function apiCall(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -21,7 +21,7 @@ async function apiCall(endpoint, options = {}) {
             try {
                 const errorJson = JSON.parse(errorText);
                 if (errorJson.detail) {
-                    message += ` - ${errorJson.detail}`;
+                    message += ` - ${typeof errorJson.detail === 'object' ? JSON.stringify(errorJson.detail) : errorJson.detail}`;
                 }
             } catch (parseError) {
                 if (errorText) {
@@ -178,9 +178,26 @@ function adicionarItemOS(osId, itemData) {
     return apiPost(`/ordens-servico/${osId}/itens`, itemData);
 }
 
+function atualizarItemOS(osId, itemId, itemData) {
+    return apiPut(`/ordens-servico/${osId}/itens/${itemId}`, itemData);
+}
+
+function deleteItemOS(osId, itemId) {
+    return apiDelete(`/ordens-servico/${osId}/itens/${itemId}`);
+}
+
 function listarItensOS(osId) {
     return apiGet(`/ordens-servico/${osId}/itens`);
 }
+
+function updateItemOS(osId, itemId, data) {
+    return apiPut(`/ordens-servico/${osId}/itens/${itemId}`, data);
+}
+
+function deleteItemOS(osId, itemId) {
+    return apiDelete(`/ordens-servico/${osId}/itens/${itemId}`);
+}
+
 
 // Utilitários
 
@@ -234,7 +251,29 @@ function carregarDadosTabela(endpoint, tabelaId, colunas) {
         });
 }
 
+// Helpers UX
+function debounce(fn, delay = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+function criarStatusBadge(status) {
+    const map = {
+        ABERTA: 'warning',
+        EM_ANDAMENTO: 'info',
+        FECHADA: 'success',
+        CANCELADA: 'danger',
+    };
+    const texto = status === 'FECHADA' ? 'Finalizada' : (status || '').replace('_', ' ');
+    const classe = map[status] || 'secondary';
+    return `<span class="badge bg-${classe}">${texto}</span>`;
+}
+
 // Expor funções no escopo global para compatibilidade com o frontend atual
+
 window.apiGet = apiGet;
 window.apiPost = apiPost;
 window.apiPut = apiPut;
@@ -264,9 +303,18 @@ window.createOrdemServico = createOrdemServico;
 window.updateOrdemServico = updateOrdemServico;
 window.deleteOrdemServico = deleteOrdemServico;
 window.adicionarItemOS = adicionarItemOS;
+window.atualizarItemOS = atualizarItemOS;
+window.updateItemOS = atualizarItemOS;
+window.deleteItemOS = deleteItemOS;
 window.listarItensOS = listarItensOS;
+window.updateItemOS = updateItemOS;
+window.deleteItemOS = deleteItemOS;
+
 window.formatarData = formatarData;
 window.formatarDataHora = formatarDataHora;
 window.formatarMoeda = formatarMoeda;
 window.mostrarAlerta = mostrarAlerta;
 window.carregarDadosTabela = carregarDadosTabela;
+window.debounce = debounce;
+window.criarStatusBadge = criarStatusBadge;
+

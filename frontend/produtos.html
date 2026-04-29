@@ -176,6 +176,7 @@
                     const statusEstoque = p.quantidade_atual <= p.quantidade_minima ? 
                         '<span class="badge bg-danger">Baixo</span>' : 
                         '<span class="badge bg-success">OK</span>';
+                    const precoVenda = p.preco_venda != null ? `R$ ${Number(p.preco_venda).toFixed(2)}` : '-';
                     
                     return `
                         <tr>
@@ -183,7 +184,7 @@
                             <td>${p.nome}</td>
                             <td>${p.categoria || '-'}</td>
                             <td>${p.quantidade_atual}</td>
-                            <td>R$ ${p.preco_venda.toFixed(2)}</td>
+                            <td>${precoVenda}</td>
                             <td>${statusEstoque}</td>
                             <td>
                                 <button class="btn btn-sm btn-info" onclick="editarProduto(${p.id})">
@@ -238,17 +239,27 @@
         }
 
         async function salvarProduto() {
+            const precoVenda = parseFloat(document.getElementById('preco_venda').value);
             const dados = {
-                nome: document.getElementById('nome').value,
+                nome: document.getElementById('nome').value.trim(),
                 sku: document.getElementById('sku').value || null,
                 descricao: document.getElementById('descricao').value || null,
                 categoria: document.getElementById('categoria').value || null,
                 quantidade_atual: parseInt(document.getElementById('quantidade_atual').value) || 0,
                 quantidade_minima: parseInt(document.getElementById('quantidade_minima').value) || 0,
                 preco_custo: parseFloat(document.getElementById('preco_custo').value) || null,
-                preco_venda: parseFloat(document.getElementById('preco_venda').value),
+                preco_venda: precoVenda,
                 fornecedor_id: parseInt(document.getElementById('fornecedor_id').value) || null,
             };
+
+            if (!dados.nome) {
+                mostrarAlerta('Nome do produto é obrigatório.', 'warning');
+                return;
+            }
+            if (isNaN(dados.preco_venda) || dados.preco_venda <= 0) {
+                mostrarAlerta('Informe um preço de venda válido.', 'warning');
+                return;
+            }
 
             try {
                 if (produtoEmEdicao) {
@@ -265,16 +276,17 @@
             }
         }
 
-        async function deletarProduto(id) {
-            if (!confirm('Deseja realmente excluir este produto?')) return;
+                async function deletarProduto(id) {
+            if (!confirm('Deseja desativar este produto?')) return;
             try {
                 await apiDelete(`/produtos/${id}`);
-                mostrarAlerta('Produto excluído com sucesso!', 'success');
+                mostrarAlerta('Produto desativado com sucesso!', 'success');
                 carregarProdutos();
             } catch (error) {
-                mostrarAlerta('Erro ao excluir produto: ' + error.message, 'danger');
+                mostrarAlerta('Erro ao desativar produto: ' + error.message, 'danger');
             }
         }
+
 
         function limparFormulario() {
             document.getElementById('formProduto').reset();

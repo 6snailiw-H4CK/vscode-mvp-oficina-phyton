@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:8000/api/v1';
+export const API_BASE_URL = '/api/v1';
 
 async function apiCall(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -19,7 +19,7 @@ async function apiCall(endpoint, options = {}) {
             try {
                 const errorJson = JSON.parse(errorText);
                 if (errorJson.detail) {
-                    message += ` - ${errorJson.detail}`;
+                    message += ` - ${typeof errorJson.detail === 'object' ? JSON.stringify(errorJson.detail) : errorJson.detail}`;
                 }
             } catch (parseError) {
                 if (errorText) {
@@ -171,6 +171,14 @@ export function deleteOrdemServico(id) {
 
 export function adicionarItemOS(osId, itemData) {
     return apiPost(`/ordens-servico/${osId}/itens`, itemData);
+}
+
+export function atualizarItemOS(osId, itemId, itemData) {
+    return apiPut(`/ordens-servico/${osId}/itens/${itemId}`, itemData);
+}
+
+export function deleteItemOS(osId, itemId) {
+    return apiDelete(`/ordens-servico/${osId}/itens/${itemId}`);
 }
 
 export function listarItensOS(osId) {

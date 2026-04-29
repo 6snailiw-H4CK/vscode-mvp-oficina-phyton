@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.models.produto import Produto
-from app.models.ordem_servico import OrdemServicoItem
 from app.schemas.produto import ProdutoCreate, ProdutoUpdate, ProdutoResponse
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
@@ -74,8 +73,13 @@ def atualizar_produto(
     db_produto = db.query(Produto).filter(Produto.id == produto_id).first()
     if not db_produto:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
-    
+
     update_data = produto_update.model_dump(exclude_unset=True)
+    if update_data.get('sku') is not None and update_data.get('sku') != db_produto.sku:
+        existing_sku = db.query(Produto).filter(Produto.sku == update_data['sku'], Produto.id != produto_id).first()
+        if existing_sku:
+            raise HTTPException(status_code=400, detail="SKU já cadastrado")
+
     for field, value in update_data.items():
         setattr(db_produto, field, value)
     
@@ -86,20 +90,10 @@ def atualizar_produto(
 
 @router.delete("/{produto_id}", status_code=204)
 def deletar_produto(produto_id: int, db: Session = Depends(get_db)):
-    """Deleta permanentemente um produto"""
+    """Desativa um produto (soft delete)"""
     db_produto = db.query(Produto).filter(Produto.id == produto_id).first()
     if not db_produto:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
 
-    item_vinculado = db.query(OrdemServicoItem).filter(OrdemServicoItem.produto_id == produto_id).first()
-    if item_vinculado:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Produto vinculado a ordem de serviço. Para preservar histórico, "
-                "não exclua o produto diretamente. Revise os serviços antes de remover."
-            )
-        )
-
-    db.delete(db_produto)
+    db_produto.ativo = False
     db.commit()

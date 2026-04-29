@@ -206,7 +206,7 @@
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead>
-                                <tr>
+                                                                <tr>
                                     <th>SKU</th>
                                     <th>Nome</th>
                                     <th>Categoria</th>
@@ -214,6 +214,7 @@
                                     <th>Mínimo</th>
                                     <th>Status</th>
                                     <th>Valor Estoque</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaProdutosEstoque">
@@ -340,23 +341,26 @@
                 }
 
                 tabela.innerHTML = produtos.map(p => {
-                    const statusBadge = p.quantidade_atual <= p.quantidade_minima ?
-                        '<span class="badge bg-danger">Baixo</span>' :
-                        '<span class="badge bg-success">OK</span>';
+                const statusBadge = p.quantidade_atual <= p.quantidade_minima ?
+                    '<span class="badge bg-danger">Baixo</span>' :
+                    '<span class="badge bg-success">OK</span>';
                     
-                    const valorEstoque = (p.quantidade_atual * (p.preco_custo || 0)).toFixed(2);
+                const valorEstoque = (p.quantidade_atual * (p.preco_custo || 0)).toFixed(2);
 
-                    return `
-                        <tr>
-                            <td>${p.sku || '-'}</td>
-                            <td>${p.nome}</td>
-                            <td>${p.categoria || '-'}</td>
-                            <td><strong>${p.quantidade_atual}</strong></td>
-                            <td>${p.quantidade_minima}</td>
-                            <td>${statusBadge}</td>
-                            <td>R$ ${valorEstoque}</td>
-                        </tr>
-                    `;
+                return `
+                    <tr>
+                        <td>${p.sku || '-'}</td>
+                        <td>${p.nome}</td>
+                        <td>${p.categoria || '-'}</td>
+                        <td><strong>${p.quantidade_atual}</strong></td>
+                        <td>${p.quantidade_minima}</td>
+                        <td>${statusBadge}</td>
+                        <td>R$ ${valorEstoque}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="abrirReposicaoEstoqueEstoque(${p.id})"><i class="bi bi-box-arrow-in-down"></i> Repor</button>
+                        </td>
+                    </tr>
+                `;
                 }).join('');
             } catch (error) {
                 mostrarAlerta('Erro ao carregar produtos: ' + error.message, 'danger');
@@ -475,6 +479,84 @@
                 mostrarAlerta('Erro ao registrar movimentação: ' + error.message, 'danger');
             }
         }
+    
+        // Reposição de estoque diretamente na aba Produtos
+        let repProdutoIdEstoque = null;
+                function abrirReposicaoEstoqueEstoque(produtoId) {
+            repProdutoIdEstoque = produtoId;
+            const produto = produtosParaMovimento[produtoId];
+            if (!produto) {
+                mostrarAlerta('Produto não encontrado para reposição', 'danger');
+                return;
+            }
+            document.getElementById('rep_produto_nome_estoque').value = `${produto.nome} (SKU: ${produto.sku || '-'})`;
+            document.getElementById('rep_estoque_atual_estoque').value = produto.quantidade_atual || 0;
+            document.getElementById('rep_qtd_adicionar_estoque').value = 1;
+            document.getElementById('rep_motivo_estoque').value = 'Reposição manual';
+            const modal = new bootstrap.Modal(document.getElementById('modalReposicaoEstoque'));
+            modal.show();
+        }
+
+        async function salvarReposicaoEstoqueEstoque() {
+            const qtd = parseInt(document.getElementById('rep_qtd_adicionar_estoque').value, 10) || 0;
+            const motivo = document.getElementById('rep_motivo_estoque').value || 'Reposição manual';
+            if (!repProdutoIdEstoque || qtd <= 0) {
+                mostrarAlerta('Quantidade inválida para reposição', 'warning');
+                return;
+            }
+            try {
+                await apiPost('/estoque/movimentar', {
+                    produto_id: repProdutoIdEstoque,
+                    tipo: 'ENTRADA',
+                    quantidade: qtd,
+                    motivo: motivo,
+                    observacao: 'Reposição via aba Produtos'
+                });
+                mostrarAlerta('Estoque atualizado com sucesso!', 'success');
+                carregarProdutosEstoque();
+                carregarProdutosParaMovimento();
+                const modal = new bootstrap.Modal(document.getElementById('modalReposicaoEstoque'));
+                modal.hide();
+            } catch (e) {
+                mostrarAlerta('Erro ao repor estoque: ' + e.message, 'danger');
+            }
+        }
     </script>
+
+    <!-- Modal Reposição de Estoque (Produtos aba) -->
+    <div class="modal fade" id="modalReposicaoEstoque" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reposição de Estoque</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Produto</label>
+                        <input type="text" class="form-control" id="rep_produto_nome_estoque" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estoque atual</label>
+                            <input type="number" class="form-control" id="rep_estoque_atual_estoque" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Quantidade a adicionar *</label>
+                            <input type="number" min="1" class="form-control" id="rep_qtd_adicionar_estoque" value="1">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo</label>
+                        <input type="text" class="form-control" id="rep_motivo_estoque" placeholder="Motivo...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarReposicaoEstoqueEstoque()">Adicionar ao estoque</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
