@@ -290,3 +290,4 @@ Desenvolvido como MVP para aprendizado e demonstração de conceitos
 
 **Versão**: 1.0.0  
 **Última atualização**: 29 de Abril de 2026
+# vscode-mvp-oficina-phyton
